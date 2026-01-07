@@ -1,8 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Image, Zap, Settings } from 'lucide-react';
+import { Upload, Image, Zap, Settings, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
-import '../styles/geometric-animations.css';
 
 interface ProcessingOptions {
   type: 'quality' | 'pixel';
@@ -142,328 +141,331 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
-      {/* Animated Geometric Background */}
-      <div className="absolute inset-0 pointer-events-none">
-        {/* Floating Circles */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-br from-[#32F08C]/20 to-[#28d474]/10 rounded-full animate-float-slow"></div>
-        <div className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-br from-[#32F08C]/15 to-[#28d474]/5 rounded-full animate-float-medium"></div>
-        <div className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-br from-[#32F08C]/25 to-[#28d474]/15 rounded-full animate-float-fast"></div>
-        
-        {/* Floating Squares */}
-        <div className="absolute top-1/3 right-1/4 w-16 h-16 bg-gradient-to-br from-[#32F08C]/20 to-transparent rotate-45 animate-rotate-slow"></div>
-        <div className="absolute bottom-1/4 right-10 w-12 h-12 bg-gradient-to-br from-[#32F08C]/15 to-transparent rotate-12 animate-rotate-medium"></div>
-        
-        {/* Floating Triangles */}
-        <div className="absolute top-1/2 left-20 w-0 h-0 border-l-[20px] border-r-[20px] border-b-[35px] border-l-transparent border-r-transparent border-b-[#32F08C]/20 animate-float-medium"></div>
-        <div className="absolute bottom-20 right-1/3 w-0 h-0 border-l-[15px] border-r-[15px] border-b-[26px] border-l-transparent border-r-transparent border-b-[#32F08C]/15 animate-float-slow"></div>
-        
-        {/* Hexagons */}
-        <div className="absolute top-1/4 left-1/3 w-14 h-14 bg-gradient-to-br from-[#32F08C]/10 to-transparent animate-pulse-slow" 
-             style={{clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)'}}>
-        </div>
-        <div className="absolute bottom-1/3 left-1/2 w-10 h-10 bg-gradient-to-br from-[#32F08C]/15 to-transparent animate-pulse-medium" 
-             style={{clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)'}}>
-        </div>
-        
-        {/* Gradient Lines */}
-        <div className="absolute top-0 left-1/4 w-px h-full bg-gradient-to-b from-transparent via-[#32F08C]/10 to-transparent animate-pulse-slow"></div>
-        <div className="absolute top-0 right-1/3 w-px h-full bg-gradient-to-b from-transparent via-[#32F08C]/5 to-transparent animate-pulse-medium"></div>
-        
-        {/* Orbiting Elements */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <div className="relative w-80 h-80">
-            <div className="absolute top-0 left-1/2 w-2 h-2 bg-[#32F08C]/30 rounded-full animate-orbit-slow transform -translate-x-1/2"></div>
-            <div className="absolute top-1/2 right-0 w-1.5 h-1.5 bg-[#32F08C]/20 rounded-full animate-orbit-medium transform -translate-y-1/2"></div>
-            <div className="absolute bottom-0 left-1/2 w-1 h-1 bg-[#32F08C]/25 rounded-full animate-orbit-fast transform -translate-x-1/2"></div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen pb-20">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm relative z-10">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#32F08C] to-[#28d474] rounded-lg flex items-center justify-center">
-                <Image className="w-5 h-5 text-black" />
-              </div>
-              <h1 className="text-2xl font-bold">Image Processor</h1>
+      <header className="border-b-3 border-neo-black bg-neo-white sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-neo-purple border-2 border-neo-black shadow-neo-sm flex items-center justify-center">
+              <Image className="w-6 h-6 text-neo-white" />
             </div>
-            <div className="text-sm text-gray-400">
-              Compress &amp; Optimize Your Images
-            </div>
+            <h1 className="text-2xl font-bold uppercase tracking-tight">Image Processor</h1>
+          </div>
+          <div className="text-sm font-bold bg-neo-black text-neo-white px-3 py-1 hidden sm:block">
+            V1.0
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-12 relative z-10">
+      <main className="max-w-4xl mx-auto px-6 py-12">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">
-            Professional Image Processing
+        <div className="mb-16 border-l-4 border-neo-black pl-6 py-2">
+          <h2 className="text-5xl md:text-7xl font-bold mb-6 leading-none">
+            CRUSH YOUR <br/>
+            <span className="text-neo-red">IMAGES.</span>
           </h2>
-          <p className="text-xl text-gray-400 max-w-2xl mx-auto">
-            Reduce file sizes and optimize your images with advanced compression algorithms. 
-            Choose between quality compression or pixel reduction for perfect results.
+          <p className="text-xl font-medium max-w-2xl border-2 border-neo-black p-4 bg-white shadow-neo">
+            Reduce file sizes and optimize your images with brute force. 
+            Choose between quality compression or pixel reduction.
           </p>
         </div>
 
         {/* Processing Type Selection */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold mb-4">Choose Processing Type</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mb-12">
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="w-4 h-4 bg-neo-black"></div>
+            <h3 className="text-xl font-bold uppercase">1. Select Strategy</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <button
               onClick={() => handleProcessingTypeChange('quality')}
-              className={`p-6 rounded-xl border-2 transition-all ${
+              className={`p-8 border-3 transition-all text-left relative group ${
                 processingType === 'quality'
-                  ? 'border-[#32F08C] bg-[#32F08C]/10'
-                  : 'border-gray-700 hover:border-gray-600'
+                  ? 'border-neo-black bg-neo-purple text-white shadow-neo-lg translate-x-[-2px] translate-y-[-2px]'
+                  : 'border-neo-black bg-white hover:bg-gray-50 hover:shadow-neo hover:-translate-y-1'
               }`}
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <Zap className="w-6 h-6 text-[#32F08C]" />
-                <h4 className="text-lg font-semibold">Quality Compression</h4>
+              <div className="flex justify-between items-start mb-4">
+                <Zap className={`w-8 h-8 ${processingType === 'quality' ? 'text-white' : 'text-neo-black'}`} />
+                {processingType === 'quality' && <div className="bg-white text-neo-black text-xs font-bold px-2 py-1 border border-neo-black">SELECTED</div>}
               </div>
-              <p className="text-gray-400 text-left">
+              <h4 className="text-2xl font-bold mb-2">QUALITY COMPRESSION</h4>
+              <p className={`text-sm font-medium ${processingType === 'quality' ? 'text-white/90' : 'text-gray-600'}`}>
                 Reduce file size while maintaining image dimensions. 
-                Perfect for web optimization and storage savings.
+                Perfect for web optimization.
               </p>
             </button>
 
             <button
               onClick={() => handleProcessingTypeChange('pixel')}
-              className={`p-6 rounded-xl border-2 transition-all ${
+              className={`p-8 border-3 transition-all text-left relative group ${
                 processingType === 'pixel'
-                  ? 'border-[#32F08C] bg-[#32F08C]/10'
-                  : 'border-gray-700 hover:border-gray-600'
+                  ? 'border-neo-black bg-neo-purple text-white shadow-neo-lg translate-x-[-2px] translate-y-[-2px]'
+                  : 'border-neo-black bg-white hover:bg-gray-50 hover:shadow-neo hover:-translate-y-1'
               }`}
             >
-              <div className="flex items-center space-x-3 mb-3">
-                <Settings className="w-6 h-6 text-[#32F08C]" />
-                <h4 className="text-lg font-semibold">Pixel Reduction</h4>
+              <div className="flex justify-between items-start mb-4">
+                <Settings className={`w-8 h-8 ${processingType === 'pixel' ? 'text-white' : 'text-neo-black'}`} />
+                {processingType === 'pixel' && <div className="bg-white text-neo-black text-xs font-bold px-2 py-1 border border-neo-black">SELECTED</div>}
               </div>
-              <p className="text-gray-400 text-left">
+              <h4 className="text-2xl font-bold mb-2">PIXEL REDUCTION</h4>
+              <p className={`text-sm font-medium ${processingType === 'pixel' ? 'text-white/90' : 'text-gray-600'}`}>
                 Resize images by reducing pixel count. 
-                Ideal for thumbnails and bandwidth optimization.
+                Ideal for thumbnails.
               </p>
             </button>
           </div>
         </div>
 
         {/* Processing Options */}
-        <div className="mb-8 p-6 bg-gray-900/50 rounded-xl border border-gray-800">
-          <h3 className="text-lg font-semibold mb-4">Processing Options</h3>
-          
-          {processingType === 'quality' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Quality Level: {options.quality}%
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={options.quality || 85}
-                  onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Lower quality (smaller file)</span>
-                  <span>Higher quality (larger file)</span>
-                </div>
-              </div>
-            </div>
-          )}
+        <div className="mb-12">
+          <div className="flex items-center space-x-2 mb-6">
+            <div className="w-4 h-4 bg-neo-black"></div>
+            <h3 className="text-xl font-bold uppercase">2. Configure</h3>
+          </div>
 
-          {processingType === 'pixel' && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Resize Method
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="resizeMethod"
-                      checked={!!options.percentage}
-                      onChange={() => setOptions({ 
-                        ...options, 
-                        percentage: 50, 
-                        maxWidth: undefined, 
-                        maxHeight: undefined 
-                      })}
-                      className="mr-2"
-                    />
-                    <span>Percentage reduction</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input
-                      type="radio"
-                      name="resizeMethod"
-                      checked={!options.percentage}
-                      onChange={() => setOptions({ 
-                        ...options, 
-                        percentage: undefined, 
-                        maxWidth: 1920, 
-                        maxHeight: undefined 
-                      })}
-                      className="mr-2"
-                    />
-                    <span>Maximum dimensions</span>
-                  </label>
-                </div>
-              </div>
-
-              {options.percentage && (
+          <div className="p-8 border-3 border-neo-black bg-white shadow-neo">
+            {processingType === 'quality' && (
+              <div className="space-y-8">
                 <div>
-                  <label className="block text-sm font-medium mb-2">
-                    Reduction Percentage: {options.percentage}%
-                  </label>
+                  <div className="flex justify-between items-end mb-4">
+                    <label className="text-lg font-bold">
+                      QUALITY LEVEL
+                    </label>
+                    <span className="text-2xl font-bold bg-neo-black text-white px-2">
+                      {options.quality}%
+                    </span>
+                  </div>
                   <input
                     type="range"
                     min="10"
-                    max="90"
-                    value={options.percentage}
-                    onChange={(e) => setOptions({ ...options, percentage: parseInt(e.target.value) })}
-                    className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    max="100"
+                    value={options.quality || 85}
+                    onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
+                    className="w-full"
                   />
-                </div>
-              )}
-
-              {!options.percentage && (
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Max Width (px)</label>
-                    <input
-                      type="number"
-                      value={options.maxWidth || ''}
-                      onChange={(e) => setOptions({ 
-                        ...options, 
-                        maxWidth: e.target.value ? parseInt(e.target.value) : undefined 
-                      })}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:border-[#32F08C] focus:outline-none"
-                      placeholder="e.g., 1920"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Max Height (px)</label>
-                    <input
-                      type="number"
-                      value={options.maxHeight || ''}
-                      onChange={(e) => setOptions({ 
-                        ...options, 
-                        maxHeight: e.target.value ? parseInt(e.target.value) : undefined 
-                      })}
-                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:border-[#32F08C] focus:outline-none"
-                      placeholder="e.g., 1080"
-                    />
+                  <div className="flex justify-between text-xs font-bold mt-2 uppercase tracking-wide">
+                    <span>Smaller File</span>
+                    <span>Better Quality</span>
                   </div>
                 </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Output Quality: {options.quality}%
-                </label>
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  value={options.quality || 85}
-                  onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
-                  className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-                />
               </div>
+            )}
 
-              <div>
-                <label className="flex items-center">
+            {processingType === 'pixel' && (
+              <div className="space-y-8">
+                <div>
+                  <label className="block text-lg font-bold mb-4">
+                    RESIZE METHOD
+                  </label>
+                  <div className="flex space-x-6">
+                    <label className="flex items-center cursor-pointer group">
+                      <div className={`w-6 h-6 border-2 border-neo-black mr-3 flex items-center justify-center ${options.percentage ? 'bg-neo-black' : 'bg-white'}`}>
+                        {options.percentage && <div className="w-2 h-2 bg-white"></div>}
+                      </div>
+                      <input
+                        type="radio"
+                        name="resizeMethod"
+                        checked={!!options.percentage}
+                        onChange={() => setOptions({ 
+                          ...options, 
+                          percentage: 50, 
+                          maxWidth: undefined, 
+                          maxHeight: undefined 
+                        })}
+                        className="hidden"
+                      />
+                      <span className="font-bold group-hover:underline">PERCENTAGE</span>
+                    </label>
+                    <label className="flex items-center cursor-pointer group">
+                      <div className={`w-6 h-6 border-2 border-neo-black mr-3 flex items-center justify-center ${!options.percentage ? 'bg-neo-black' : 'bg-white'}`}>
+                        {!options.percentage && <div className="w-2 h-2 bg-white"></div>}
+                      </div>
+                      <input
+                        type="radio"
+                        name="resizeMethod"
+                        checked={!options.percentage}
+                        onChange={() => setOptions({ 
+                          ...options, 
+                          percentage: undefined, 
+                          maxWidth: 1920, 
+                          maxHeight: undefined 
+                        })}
+                        className="hidden"
+                      />
+                      <span className="font-bold group-hover:underline">FIXED DIMENSIONS</span>
+                    </label>
+                  </div>
+                </div>
+
+                {options.percentage && (
+                  <div>
+                    <div className="flex justify-between items-end mb-4">
+                      <label className="text-lg font-bold">REDUCTION PERCENTAGE</label>
+                      <span className="text-2xl font-bold bg-neo-black text-white px-2">
+                        {options.percentage}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="90"
+                      value={options.percentage}
+                      onChange={(e) => setOptions({ ...options, percentage: parseInt(e.target.value) })}
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
+                {!options.percentage && (
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold mb-2 uppercase">Max Width (px)</label>
+                      <input
+                        type="number"
+                        value={options.maxWidth || ''}
+                        onChange={(e) => setOptions({ 
+                          ...options, 
+                          maxWidth: e.target.value ? parseInt(e.target.value) : undefined 
+                        })}
+                        className="w-full px-4 py-3 bg-neo-white border-2 border-neo-black focus:shadow-neo outline-none font-bold"
+                        placeholder="1920"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold mb-2 uppercase">Max Height (px)</label>
+                      <input
+                        type="number"
+                        value={options.maxHeight || ''}
+                        onChange={(e) => setOptions({ 
+                          ...options, 
+                          maxHeight: e.target.value ? parseInt(e.target.value) : undefined 
+                        })}
+                        className="w-full px-4 py-3 bg-neo-white border-2 border-neo-black focus:shadow-neo outline-none font-bold"
+                        placeholder="1080"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <div className="flex justify-between items-end mb-4">
+                    <label className="text-lg font-bold">OUTPUT QUALITY</label>
+                    <span className="text-2xl font-bold bg-neo-black text-white px-2">
+                      {options.quality}%
+                    </span>
+                  </div>
                   <input
-                    type="checkbox"
-                    checked={options.noAspect || false}
-                    onChange={(e) => setOptions({ ...options, noAspect: e.target.checked })}
-                    className="mr-2"
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={options.quality || 85}
+                    onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
+                    className="w-full"
                   />
-                  <span className="text-sm">Don't maintain aspect ratio</span>
-                </label>
+                </div>
+
+                <div>
+                  <label className="flex items-center cursor-pointer group select-none">
+                    <div className={`w-6 h-6 border-2 border-neo-black mr-3 flex items-center justify-center transition-colors ${options.noAspect ? 'bg-neo-black' : 'bg-white'}`}>
+                      {options.noAspect && <div className="text-white font-bold text-xs">✕</div>}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={options.noAspect || false}
+                      onChange={(e) => setOptions({ ...options, noAspect: e.target.checked })}
+                      className="hidden"
+                    />
+                    <span className="font-bold uppercase text-sm group-hover:underline">Ignore Aspect Ratio</span>
+                  </label>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* File Upload Area */}
-        <div
-          className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${
-            isDragging
-              ? 'border-[#32F08C] bg-[#32F08C]/10'
-              : selectedFile
-              ? 'border-[#32F08C] bg-[#32F08C]/5'
-              : 'border-gray-700 hover:border-gray-600'
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/jpeg,image/jpg"
-            onChange={handleFileInputChange}
-            className="hidden"
-          />
+        <div className="mb-12">
+           <div className="flex items-center space-x-2 mb-6">
+            <div className="w-4 h-4 bg-neo-black"></div>
+            <h3 className="text-xl font-bold uppercase">3. Upload & Process</h3>
+          </div>
 
-          {selectedFile ? (
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-[#32F08C] rounded-full flex items-center justify-center mx-auto">
-                <Image className="w-8 h-8 text-black" />
+          <div
+            className={`border-3 border-dashed rounded-none p-12 text-center transition-all cursor-pointer ${
+              isDragging
+                ? 'border-neo-black bg-neo-purple/20'
+                : selectedFile
+                ? 'border-neo-black bg-white border-solid'
+                : 'border-gray-400 hover:border-neo-black hover:bg-white'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onClick={() => !selectedFile && fileInputRef.current?.click()}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg"
+              onChange={handleFileInputChange}
+              className="hidden"
+            />
+
+            {selectedFile ? (
+              <div className="space-y-6">
+                <div className="w-20 h-20 bg-neo-black text-white mx-auto flex items-center justify-center shadow-neo">
+                  <Image className="w-10 h-10" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">READY TO CRUSH</h3>
+                  <div className="inline-block bg-neo-white border-2 border-neo-black px-4 py-2 font-mono text-sm font-bold">
+                    {selectedFile.name}
+                  </div>
+                  <p className="text-sm font-bold mt-2 text-gray-500 uppercase">
+                    {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className="text-neo-red font-bold hover:underline uppercase tracking-wide"
+                >
+                  Change File
+                </button>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-[#32F08C]">File Selected</h3>
-                <p className="text-gray-400">{selectedFile.name}</p>
-                <p className="text-sm text-gray-500">
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
+            ) : (
+              <div className="space-y-6 pointer-events-none">
+                <div className="w-20 h-20 bg-neo-white border-2 border-neo-black mx-auto flex items-center justify-center shadow-neo">
+                  <Upload className="w-10 h-10 text-neo-black" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold uppercase">Drop Image Here</h3>
+                  <p className="font-medium text-gray-500 mt-2">
+                    OR CLICK TO BROWSE
+                  </p>
+                </div>
+                <div className="inline-block bg-neo-black text-white text-xs px-2 py-1 font-bold">
+                  JPG/JPEG UP TO 50MB
+                </div>
               </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-[#32F08C] hover:text-[#28d474] transition-colors"
-              >
-                Choose different file
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mx-auto">
-                <Upload className="w-8 h-8 text-gray-400" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold">Drop your image here</h3>
-                <p className="text-gray-400">or click to browse files</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Supports JPG/JPEG files up to 50MB
-                </p>
-              </div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="bg-[#32F08C] text-black px-6 py-2 rounded-lg font-medium hover:bg-[#28d474] transition-colors"
-              >
-                Choose File
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Start Processing Button */}
         {selectedFile && (
-          <div className="mt-8 text-center">
+          <div className="mt-8">
             <button
               onClick={handleStartProcessing}
               disabled={isUploading}
-              className="bg-[#32F08C] text-black px-8 py-3 rounded-lg font-semibold text-lg hover:bg-[#28d474] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-neo-red text-white border-3 border-neo-black px-8 py-6 text-2xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-4"
             >
-              {isUploading ? 'Starting...' : 'Start Processing'}
+              <span>{isUploading ? 'INITIALIZING...' : 'START PROCESSING'}</span>
+              {!isUploading && <ArrowRight className="w-8 h-8" />}
             </button>
           </div>
         )}

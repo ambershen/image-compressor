@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, RotateCcw, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Download, RotateCcw, Eye, EyeOff, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProcessingStats {
@@ -101,225 +101,172 @@ export default function Results() {
 
   if (!results) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#32F08C] mx-auto mb-4"></div>
-          <p>Loading results...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-neo-black border-t-transparent mx-auto mb-4"></div>
+          <p className="font-bold uppercase">Loading results...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen pb-20">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => navigate('/')}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5" />
-              </button>
-              <h1 className="text-xl font-semibold">Processing Results</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowComparison(!showComparison)}
-                className="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                {showComparison ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                <span>{showComparison ? 'Hide' : 'Show'} Comparison</span>
-              </button>
-              <button
-                onClick={handleDownload}
-                disabled={isDownloading}
-                className="flex items-center space-x-2 bg-[#32F08C] text-black px-4 py-2 rounded-lg font-medium hover:bg-[#28d474] transition-colors disabled:opacity-50"
-              >
-                <Download className="w-4 h-4" />
-                <span>{isDownloading ? 'Downloading...' : 'Download'}</span>
-              </button>
-            </div>
+      <header className="border-b-3 border-neo-black bg-neo-white sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+           <div className="flex items-center space-x-4">
+            <button
+              onClick={() => navigate('/')}
+              className="p-2 border-2 border-neo-black bg-white hover:shadow-neo transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-xl font-bold uppercase tracking-tight">Results</h1>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowComparison(!showComparison)}
+              className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-white border-2 border-neo-black hover:shadow-neo transition-all font-bold uppercase text-sm"
+            >
+              {showComparison ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              <span>{showComparison ? 'Hide' : 'Show'} Comparison</span>
+            </button>
+            <button
+              onClick={handleDownload}
+              disabled={isDownloading}
+              className="flex items-center space-x-2 bg-neo-red text-white border-2 border-neo-black px-4 py-2 font-bold uppercase hover:shadow-neo transition-all disabled:opacity-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+            >
+              <Download className="w-4 h-4" />
+              <span>{isDownloading ? '...' : 'Download'}</span>
+            </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-8">
+      <main className="max-w-6xl mx-auto px-6 py-12">
         {/* Success Message */}
-        <div className="bg-green-900/20 border border-green-500/30 rounded-xl p-6 mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-green-400">Processing Completed Successfully!</h2>
-              <p className="text-green-300">Your image has been optimized and is ready for download.</p>
-            </div>
+        <div className="bg-neo-purple text-white border-3 border-neo-black p-6 mb-12 shadow-neo flex items-start space-x-4">
+          <div className="bg-white text-neo-black p-2 border-2 border-neo-black">
+            <Check className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold uppercase leading-none mb-1">Success!</h2>
+            <p className="font-medium opacity-90">Your image has been crushed to perfection.</p>
           </div>
         </div>
 
-        {/* Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">File Size Reduction</h3>
-            <div className="text-2xl font-bold text-[#32F08C]">
-              {results.stats.compressionRatio.toFixed(1)}%
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          {/* Compression Ratio */}
+          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
+            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Reduction</h3>
+            <div className="text-5xl font-black text-neo-black leading-none mb-4">
+              {results.stats.compressionRatio.toFixed(1)}<span className="text-2xl">%</span>
             </div>
-            <div className="text-sm text-gray-400 mt-1">
+            <div className="inline-block bg-neo-black text-white px-3 py-1 font-bold text-sm uppercase">
               Saved {formatFileSize(calculateSavings())}
             </div>
           </div>
 
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Original Size</h3>
-            <div className="text-2xl font-bold">
+          {/* Original Stats */}
+          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
+            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Original</h3>
+            <div className="text-4xl font-bold text-neo-black mb-2">
               {formatFileSize(results.stats.originalSize)}
             </div>
             {results.stats.originalDimensions && (
-              <div className="text-sm text-gray-400 mt-1">
+              <div className="text-sm font-medium text-gray-600 border-t-2 border-gray-100 pt-2 mt-2">
                 {results.stats.originalDimensions[0]} × {results.stats.originalDimensions[1]} px
               </div>
             )}
           </div>
 
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-sm font-medium text-gray-400 mb-2">Processed Size</h3>
-            <div className="text-2xl font-bold text-[#32F08C]">
+          {/* Processed Stats */}
+          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
+            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Processed</h3>
+            <div className="text-4xl font-bold text-neo-red mb-2">
               {formatFileSize(results.stats.processedSize)}
             </div>
             {results.stats.newDimensions && (
-              <div className="text-sm text-gray-400 mt-1">
+              <div className="text-sm font-medium text-gray-600 border-t-2 border-gray-100 pt-2 mt-2">
                 {results.stats.newDimensions[0]} × {results.stats.newDimensions[1]} px
               </div>
             )}
           </div>
         </div>
 
-        {/* Additional Stats */}
-        {results.stats.pixelReduction && (
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 mb-8">
-            <h3 className="text-lg font-semibold mb-4">Pixel Reduction Details</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <span className="text-gray-400">Pixel Reduction:</span>
-                <div className="text-xl font-bold text-[#32F08C]">
-                  {results.stats.pixelReduction.toFixed(1)}%
-                </div>
-              </div>
-              <div>
-                <span className="text-gray-400">Dimension Change:</span>
-                <div className="text-lg font-semibold">
-                  {results.stats.originalDimensions && results.stats.newDimensions && (
-                    <>
-                      {results.stats.originalDimensions[0]} × {results.stats.originalDimensions[1]} → {' '}
-                      <span className="text-[#32F08C]">
-                        {results.stats.newDimensions[0]} × {results.stats.newDimensions[1]}
-                      </span>
-                    </>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Image Comparison */}
         {showComparison && (
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800 mb-8">
-            <h3 className="text-lg font-semibold mb-6">Before &amp; After Comparison</h3>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="mb-12">
+            <div className="flex items-center space-x-2 mb-6">
+              <div className="w-4 h-4 bg-neo-black"></div>
+              <h3 className="text-xl font-bold uppercase">Before & After</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               {/* Original Image */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-gray-300">Original</h4>
-                <div className="bg-gray-800 rounded-lg overflow-hidden">
-                  <img
-                    src={`/api/original/${jobId}`}
-                    alt="Original"
-                    className="w-full h-auto max-h-96 object-contain"
-                    onError={() => setImageError(true)}
-                  />
-                </div>
-                <div className="text-sm text-gray-400 text-center">
-                  {formatFileSize(results.stats.originalSize)}
-                  {results.stats.originalDimensions && (
-                    <> • {results.stats.originalDimensions[0]} × {results.stats.originalDimensions[1]} px</>
-                  )}
+              <div className="space-y-4">
+                <div className="bg-white border-3 border-neo-black p-2 shadow-neo">
+                  <div className="bg-gray-100 overflow-hidden relative group">
+                    <img
+                      src={`/api/original/${jobId}`}
+                      alt="Original"
+                      className="w-full h-auto max-h-96 object-contain"
+                      onError={() => setImageError(true)}
+                    />
+                    <div className="absolute top-4 left-4 bg-neo-black text-white px-3 py-1 font-bold text-sm uppercase">
+                      Original
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Processed Image */}
-              <div className="space-y-3">
-                <h4 className="font-medium text-[#32F08C]">Processed</h4>
-                <div className="bg-gray-800 rounded-lg overflow-hidden">
-                  <img
-                    src={`/api/preview/${jobId}`}
-                    alt="Processed"
-                    className="w-full h-auto max-h-96 object-contain"
-                    onError={() => setImageError(true)}
-                  />
-                </div>
-                <div className="text-sm text-gray-400 text-center">
-                  {formatFileSize(results.stats.processedSize)}
-                  {results.stats.newDimensions && (
-                    <> • {results.stats.newDimensions[0]} × {results.stats.newDimensions[1]} px</>
-                  )}
+              <div className="space-y-4">
+                <div className="bg-white border-3 border-neo-black p-2 shadow-neo">
+                  <div className="bg-gray-100 overflow-hidden relative group">
+                    <img
+                      src={`/api/preview/${jobId}`}
+                      alt="Processed"
+                      className="w-full h-auto max-h-96 object-contain"
+                      onError={() => setImageError(true)}
+                    />
+                    <div className="absolute top-4 left-4 bg-neo-red text-white px-3 py-1 font-bold text-sm uppercase">
+                      Processed
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
             {imageError && (
-              <div className="text-center text-gray-400 mt-4">
-                <p>Unable to load image preview. You can still download the processed image.</p>
+              <div className="text-center text-gray-500 mt-4 font-medium border-2 border-dashed border-gray-300 p-4">
+                Unable to load image preview. You can still download the processed image.
               </div>
             )}
           </div>
         )}
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        {/* Actions Footer */}
+        <div className="flex flex-col sm:flex-row gap-6 justify-center mt-16">
           <button
             onClick={handleDownload}
             disabled={isDownloading}
-            className="flex items-center justify-center space-x-2 bg-[#32F08C] text-black px-8 py-3 rounded-lg font-semibold hover:bg-[#28d474] transition-colors disabled:opacity-50"
+            className="flex items-center justify-center space-x-3 bg-neo-red text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all disabled:opacity-50"
           >
-            <Download className="w-5 h-5" />
-            <span>{isDownloading ? 'Downloading...' : 'Download Processed Image'}</span>
+            <Download className="w-6 h-6" />
+            <span>{isDownloading ? 'Downloading...' : 'Download Image'}</span>
           </button>
 
           <button
             onClick={() => navigate('/')}
-            className="flex items-center justify-center space-x-2 bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
+            className="flex items-center justify-center space-x-3 bg-white text-neo-black border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
           >
-            <RotateCcw className="w-5 h-5" />
-            <span>Process Another Image</span>
+            <RotateCcw className="w-6 h-6" />
+            <span>Process Another</span>
           </button>
-        </div>
-
-        {/* Tips */}
-        <div className="mt-12 bg-gray-900/30 rounded-xl p-6 border border-gray-800">
-          <h3 className="text-lg font-semibold mb-4">💡 Optimization Tips</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-300">
-            <div>
-              <h4 className="font-medium text-white mb-2">Quality Compression</h4>
-              <ul className="space-y-1">
-                <li>• Best for web images and email attachments</li>
-                <li>• Maintains original dimensions</li>
-                <li>• Reduces file size without visible quality loss</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-white mb-2">Pixel Reduction</h4>
-              <ul className="space-y-1">
-                <li>• Perfect for thumbnails and previews</li>
-                <li>• Significantly reduces file size</li>
-                <li>• Great for bandwidth-limited scenarios</li>
-              </ul>
-            </div>
-          </div>
         </div>
       </main>
     </div>

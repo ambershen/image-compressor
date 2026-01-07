@@ -73,49 +73,36 @@ export default function Processing() {
   }, [jobId, navigate, isPolling]);
 
   const getStatusIcon = () => {
-    if (!status) return <Loader2 className="w-8 h-8 animate-spin text-[#32F08C]" />;
+    if (!status) return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
 
     switch (status.status) {
       case 'pending':
-        return <Loader2 className="w-8 h-8 animate-spin text-yellow-500" />;
+        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
       case 'processing':
-        return <Loader2 className="w-8 h-8 animate-spin text-[#32F08C]" />;
+        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
       case 'completed':
-        return <CheckCircle className="w-8 h-8 text-green-500" />;
+        return <CheckCircle className="w-12 h-12 text-neo-black" />;
       case 'failed':
-        return <XCircle className="w-8 h-8 text-red-500" />;
+        return <XCircle className="w-12 h-12 text-neo-red" />;
       default:
-        return <Loader2 className="w-8 h-8 animate-spin text-[#32F08C]" />;
+        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
     }
   };
 
   const getStatusText = () => {
-    if (!status) return 'Initializing...';
+    if (!status) return 'INITIALIZING...';
 
     switch (status.status) {
       case 'pending':
-        return 'Preparing for processing...';
+        return 'PREPARING TO CRUSH...';
       case 'processing':
-        return 'Processing your image...';
+        return 'CRUSHING PIXELS...';
       case 'completed':
-        return 'Processing completed successfully!';
+        return 'DESTRUCTION COMPLETE!';
       case 'failed':
-        return 'Processing failed';
+        return 'MISSION FAILED';
       default:
-        return 'Processing...';
-    }
-  };
-
-  const getProgressColor = () => {
-    if (!status) return 'bg-gray-600';
-
-    switch (status.status) {
-      case 'completed':
-        return 'bg-green-500';
-      case 'failed':
-        return 'bg-red-500';
-      default:
-        return 'bg-[#32F08C]';
+        return 'PROCESSING...';
     }
   };
 
@@ -128,170 +115,130 @@ export default function Processing() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen pb-20">
       {/* Header */}
-      <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/')}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <h1 className="text-xl font-semibold">Processing Image</h1>
-          </div>
+      <header className="border-b-3 border-neo-black bg-neo-white sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center space-x-4">
+          <button
+            onClick={() => navigate('/')}
+            className="p-2 border-2 border-neo-black bg-white hover:shadow-neo transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </button>
+          <h1 className="text-xl font-bold uppercase tracking-tight">Processing</h1>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="text-center space-y-8">
-          {/* Status Icon */}
-          <div className="flex justify-center">
-            {getStatusIcon()}
-          </div>
-
-          {/* Status Text */}
-          <div>
-            <h2 className="text-2xl font-bold mb-2">{getStatusText()}</h2>
-            {status?.error && (
-              <p className="text-red-400">{status.error}</p>
-            )}
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full max-w-md mx-auto">
-            <div className="flex justify-between text-sm text-gray-400 mb-2">
-              <span>Progress</span>
-              <span>{status?.progress || 0}%</span>
+        <div className="text-center space-y-12">
+          
+          {/* Status Display */}
+          <div className="bg-white border-3 border-neo-black p-8 shadow-neo relative">
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-neo-white border-3 border-neo-black p-3 rounded-full">
+              {getStatusIcon()}
             </div>
-            <div className="w-full bg-gray-800 rounded-full h-3">
-              <div
-                className={`h-3 rounded-full transition-all duration-500 ${getProgressColor()}`}
-                style={{ width: `${status?.progress || 0}%` }}
-              />
+            
+            <div className="mt-8">
+              <h2 className="text-3xl font-bold mb-2 uppercase">{getStatusText()}</h2>
+              {status?.error && (
+                <p className="text-neo-red font-bold bg-neo-black/10 p-2 inline-block mt-2 border border-neo-red">
+                  {status.error}
+                </p>
+              )}
+            </div>
+
+            {/* Progress Bar */}
+            <div className="w-full mt-8">
+              <div className="flex justify-between text-sm font-bold uppercase mb-2">
+                <span>Progress</span>
+                <span>{status?.progress || 0}%</span>
+              </div>
+              <div className="w-full bg-white border-3 border-neo-black h-8 relative">
+                <div
+                  className="h-full bg-neo-red border-r-3 border-neo-black transition-all duration-300"
+                  style={{ width: `${status?.progress || 0}%` }}
+                />
+                {/* Striped pattern overlay for texture */}
+                <div className="absolute inset-0 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzjwqhgYQAwcE0DAxcXFBAA7XAezRx1uOAAAAABJRU5ErkJggg==')] opacity-10 pointer-events-none"></div>
+              </div>
             </div>
           </div>
 
           {/* Processing Steps */}
-          <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-            <h3 className="text-lg font-semibold mb-4">Processing Steps</h3>
-            <div className="space-y-3 text-left">
-              <div className={`flex items-center space-x-3 ${
-                (status?.progress || 0) >= 10 ? 'text-[#32F08C]' : 'text-gray-500'
+          <div className="border-l-4 border-neo-black pl-8 py-4 text-left space-y-6">
+            <div className={`flex items-center space-x-4 transition-all ${
+              (status?.progress || 0) >= 10 ? 'opacity-100' : 'opacity-40 grayscale'
+            }`}>
+              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
+                (status?.progress || 0) >= 10 ? 'bg-neo-black' : 'bg-white'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  (status?.progress || 0) >= 10 ? 'bg-[#32F08C]' : 'bg-gray-600'
-                }`} />
-                <span>File uploaded and validated</span>
+                {(status?.progress || 0) >= 10 && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
-              <div className={`flex items-center space-x-3 ${
-                (status?.progress || 0) >= 30 ? 'text-[#32F08C]' : 'text-gray-500'
+              <span className="font-bold text-lg uppercase">File Uploaded</span>
+            </div>
+
+            <div className={`flex items-center space-x-4 transition-all ${
+              (status?.progress || 0) >= 30 ? 'opacity-100' : 'opacity-40 grayscale'
+            }`}>
+              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
+                (status?.progress || 0) >= 30 ? 'bg-neo-black' : 'bg-white'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  (status?.progress || 0) >= 30 ? 'bg-[#32F08C]' : 'bg-gray-600'
-                }`} />
-                <span>Processing parameters configured</span>
+                {(status?.progress || 0) >= 30 && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
-              <div className={`flex items-center space-x-3 ${
-                (status?.progress || 0) >= 50 ? 'text-[#32F08C]' : 'text-gray-500'
+              <span className="font-bold text-lg uppercase">Configuring Parameters</span>
+            </div>
+
+            <div className={`flex items-center space-x-4 transition-all ${
+              (status?.progress || 0) >= 50 ? 'opacity-100' : 'opacity-40 grayscale'
+            }`}>
+              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
+                (status?.progress || 0) >= 50 ? 'bg-neo-black' : 'bg-white'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  (status?.progress || 0) >= 50 ? 'bg-[#32F08C]' : 'bg-gray-600'
-                }`} />
-                <span>Image processing in progress</span>
+                {(status?.progress || 0) >= 50 && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
-              <div className={`flex items-center space-x-3 ${
-                (status?.progress || 0) >= 80 ? 'text-[#32F08C]' : 'text-gray-500'
+              <span className="font-bold text-lg uppercase">Processing Image</span>
+            </div>
+
+            <div className={`flex items-center space-x-4 transition-all ${
+              (status?.progress || 0) >= 80 ? 'opacity-100' : 'opacity-40 grayscale'
+            }`}>
+              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
+                (status?.progress || 0) >= 80 ? 'bg-neo-black' : 'bg-white'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  (status?.progress || 0) >= 80 ? 'bg-[#32F08C]' : 'bg-gray-600'
-                }`} />
-                <span>Optimization algorithms applied</span>
+                {(status?.progress || 0) >= 80 && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
-              <div className={`flex items-center space-x-3 ${
-                (status?.progress || 0) >= 100 ? 'text-[#32F08C]' : 'text-gray-500'
+              <span className="font-bold text-lg uppercase">Optimizing Output</span>
+            </div>
+            
+            <div className={`flex items-center space-x-4 transition-all ${
+              (status?.progress || 0) >= 100 ? 'opacity-100' : 'opacity-40 grayscale'
+            }`}>
+               <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
+                (status?.progress || 0) >= 100 ? 'bg-neo-black' : 'bg-white'
               }`}>
-                <div className={`w-2 h-2 rounded-full ${
-                  (status?.progress || 0) >= 100 ? 'bg-[#32F08C]' : 'bg-gray-600'
-                }`} />
-                <span>Processing completed</span>
+                {(status?.progress || 0) >= 100 && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
+              <span className="font-bold text-lg uppercase">Done</span>
             </div>
           </div>
 
-          {/* Preview Stats (if available) */}
-          {status?.stats && (
-            <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-800">
-              <h3 className="text-lg font-semibold mb-4">Processing Results</h3>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-400">Original Size:</span>
-                  <div className="font-semibold">
-                    {formatFileSize(status.stats.originalSize)}
-                  </div>
-                </div>
-                <div>
-                  <span className="text-gray-400">Processed Size:</span>
-                  <div className="font-semibold text-[#32F08C]">
-                    {formatFileSize(status.stats.processedSize)}
-                  </div>
-                </div>
-                {status.stats.originalDimensions && (
-                  <div>
-                    <span className="text-gray-400">Original Dimensions:</span>
-                    <div className="font-semibold">
-                      {status.stats.originalDimensions[0]} × {status.stats.originalDimensions[1]}
-                    </div>
-                  </div>
-                )}
-                {status.stats.newDimensions && (
-                  <div>
-                    <span className="text-gray-400">New Dimensions:</span>
-                    <div className="font-semibold text-[#32F08C]">
-                      {status.stats.newDimensions[0]} × {status.stats.newDimensions[1]}
-                    </div>
-                  </div>
-                )}
-                <div>
-                  <span className="text-gray-400">Size Reduction:</span>
-                  <div className="font-semibold text-[#32F08C]">
-                    {status.stats.compressionRatio.toFixed(1)}%
-                  </div>
-                </div>
-                {status.stats.pixelReduction && (
-                  <div>
-                    <span className="text-gray-400">Pixel Reduction:</span>
-                    <div className="font-semibold text-[#32F08C]">
-                      {status.stats.pixelReduction.toFixed(1)}%
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Action Buttons */}
           {status?.status === 'completed' && (
-            <div className="space-y-4">
-              <button
-                onClick={() => navigate(`/results/${jobId}`)}
-                className="bg-[#32F08C] text-black px-8 py-3 rounded-lg font-semibold hover:bg-[#28d474] transition-colors"
-              >
-                View Results
-              </button>
-            </div>
+            <button
+              onClick={() => navigate(`/results/${jobId}`)}
+              className="bg-neo-red text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+            >
+              View Results
+            </button>
           )}
 
           {status?.status === 'failed' && (
-            <div className="space-y-4">
-              <button
-                onClick={() => navigate('/')}
-                className="bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors"
-              >
-                Try Again
-              </button>
-            </div>
+            <button
+              onClick={() => navigate('/')}
+              className="bg-neo-black text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+            >
+              Try Again
+            </button>
           )}
         </div>
       </main>
