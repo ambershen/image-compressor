@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2, CheckCircle, XCircle } from 'lucide-react';
+import { Loader2, AlertTriangle, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProcessingStatus {
@@ -22,7 +22,14 @@ export default function Processing() {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
   const [status, setStatus] = useState<ProcessingStatus | null>(null);
-  const [isPolling, setIsPolling] = useState(true);
+  const [logs, setLogs] = useState<string[]>([]);
+
+  // Add fake logs for effect
+  useEffect(() => {
+    if (!status) return;
+    const newLog = `[${new Date().toLocaleTimeString()}] STATUS_UPDATE: ${status.status.toUpperCase()} // PROGRESS: ${status.progress}%`;
+    setLogs(prev => [...prev.slice(-4), newLog]);
+  }, [status?.progress, status?.status]);
 
   useEffect(() => {
     if (!jobId) {
@@ -41,207 +48,81 @@ export default function Processing() {
         setStatus(statusData);
 
         if (statusData.status === 'completed') {
-          setIsPolling(false);
-          toast.success('Processing completed successfully!');
+          toast.success('SEQUENCE_COMPLETE');
           setTimeout(() => {
             navigate(`/results/${jobId}`);
-          }, 2000);
+          }, 1500);
         } else if (statusData.status === 'failed') {
-          setIsPolling(false);
-          toast.error('Processing failed');
+          toast.error('FATAL_ERROR');
         }
       } catch (error) {
         console.error('Error polling status:', error);
-        toast.error('Failed to get processing status');
       }
     };
 
-    // Initial poll
     pollStatus();
-
-    // Set up polling interval
-    let interval: NodeJS.Timeout;
-    if (isPolling) {
-      interval = setInterval(pollStatus, 1000);
-    }
-
-    return () => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    };
-  }, [jobId, navigate, isPolling]);
-
-  const getStatusIcon = () => {
-    if (!status) return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
-
-    switch (status.status) {
-      case 'pending':
-        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
-      case 'processing':
-        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
-      case 'completed':
-        return <CheckCircle className="w-12 h-12 text-neo-black" />;
-      case 'failed':
-        return <XCircle className="w-12 h-12 text-neo-red" />;
-      default:
-        return <Loader2 className="w-12 h-12 animate-spin text-neo-black" />;
-    }
-  };
-
-  const getStatusText = () => {
-    if (!status) return 'INITIALIZING...';
-
-    switch (status.status) {
-      case 'pending':
-        return 'PREPARING TO CRUSH...';
-      case 'processing':
-        return 'CRUSHING PIXELS...';
-      case 'completed':
-        return 'DESTRUCTION COMPLETE!';
-      case 'failed':
-        return 'MISSION FAILED';
-      default:
-        return 'PROCESSING...';
-    }
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+    const interval = setInterval(pollStatus, 1000);
+    return () => clearInterval(interval);
+  }, [jobId, navigate]);
 
   return (
-    <div className="min-h-screen pb-20">
-      {/* Header */}
-      <header className="border-b-3 border-neo-black bg-neo-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center space-x-4">
-          <button
-            onClick={() => navigate('/')}
-            className="p-2 border-2 border-neo-black bg-white hover:shadow-neo transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-          >
-            <ArrowLeft className="w-6 h-6" />
-          </button>
-          <h1 className="text-xl font-bold uppercase tracking-tight">Processing</h1>
+    <div className="min-h-screen bg-brut-white flex flex-col items-center justify-center p-4 font-mono">
+      <div className="w-full max-w-2xl border-4 border-brut-black bg-white shadow-brut">
+        <div className="bg-brut-black text-white p-2 flex justify-between items-center border-b-4 border-brut-black">
+          <div className="font-bold uppercase flex items-center space-x-2">
+            <Terminal className="w-4 h-4" />
+            <span>PROCESSING_TERMINAL</span>
+          </div>
+          <div className="flex space-x-1">
+            <div className="w-3 h-3 bg-white rounded-none"></div>
+            <div className="w-3 h-3 bg-white rounded-none"></div>
+          </div>
         </div>
-      </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-12">
-        <div className="text-center space-y-12">
-          
-          {/* Status Display */}
-          <div className="bg-white border-3 border-neo-black p-8 shadow-neo relative">
-            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-neo-white border-3 border-neo-black p-3 rounded-full">
-              {getStatusIcon()}
-            </div>
-            
-            <div className="mt-8">
-              <h2 className="text-3xl font-bold mb-2 uppercase">{getStatusText()}</h2>
-              {status?.error && (
-                <p className="text-neo-red font-bold bg-neo-black/10 p-2 inline-block mt-2 border border-neo-red">
-                  {status.error}
-                </p>
+        <div className="p-8">
+          <div className="text-center mb-8">
+            <div className="inline-block border-4 border-brut-black p-4 mb-4 bg-brut-white">
+              {status?.status === 'failed' ? (
+                <AlertTriangle className="w-12 h-12 text-brut-red animate-pulse" />
+              ) : (
+                <Loader2 className="w-12 h-12 text-brut-black animate-spin" />
               )}
             </div>
+            <h2 className="text-4xl font-black uppercase mb-2 tracking-tighter">
+              {status?.status === 'pending' && 'QUEUED'}
+              {status?.status === 'processing' && 'EXECUTING'}
+              {status?.status === 'completed' && 'FINALIZING'}
+              {status?.status === 'failed' && 'ABORTED'}
+            </h2>
+            <p className="text-sm font-bold uppercase bg-brut-black text-white inline-block px-2">
+              ID: {jobId}
+            </p>
+          </div>
 
-            {/* Progress Bar */}
-            <div className="w-full mt-8">
-              <div className="flex justify-between text-sm font-bold uppercase mb-2">
+          <div className="mb-8">
+             <div className="flex justify-between text-xs font-bold uppercase mb-1">
                 <span>Progress</span>
                 <span>{status?.progress || 0}%</span>
-              </div>
-              <div className="w-full bg-white border-3 border-neo-black h-8 relative">
-                <div
-                  className="h-full bg-neo-red border-r-3 border-neo-black transition-all duration-300"
-                  style={{ width: `${status?.progress || 0}%` }}
-                />
-                {/* Striped pattern overlay for texture */}
-                <div className="absolute inset-0 bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAIklEQVQIW2NkQAKrVq36zwjjgzjwqhgYQAwcE0DAxcXFBAA7XAezRx1uOAAAAABJRU5ErkJggg==')] opacity-10 pointer-events-none"></div>
-              </div>
-            </div>
+             </div>
+             <div className="w-full h-8 border-4 border-brut-black p-1">
+               <div 
+                 className="h-full bg-brut-black transition-all duration-300"
+                 style={{ width: `${status?.progress || 0}%` }}
+               ></div>
+             </div>
           </div>
 
-          {/* Processing Steps */}
-          <div className="border-l-4 border-neo-black pl-8 py-4 text-left space-y-6">
-            <div className={`flex items-center space-x-4 transition-all ${
-              (status?.progress || 0) >= 10 ? 'opacity-100' : 'opacity-40 grayscale'
-            }`}>
-              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
-                (status?.progress || 0) >= 10 ? 'bg-neo-black' : 'bg-white'
-              }`}>
-                {(status?.progress || 0) >= 10 && <CheckCircle className="w-4 h-4 text-white" />}
+          <div className="bg-gray-100 border-2 border-brut-black p-4 font-mono text-xs h-32 overflow-hidden">
+            {logs.map((log, i) => (
+              <div key={i} className="mb-1 border-b border-gray-300 pb-1 last:border-0">
+                <span className="text-brut-red mr-2">{'>'}</span>
+                {log}
               </div>
-              <span className="font-bold text-lg uppercase">File Uploaded</span>
-            </div>
-
-            <div className={`flex items-center space-x-4 transition-all ${
-              (status?.progress || 0) >= 30 ? 'opacity-100' : 'opacity-40 grayscale'
-            }`}>
-              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
-                (status?.progress || 0) >= 30 ? 'bg-neo-black' : 'bg-white'
-              }`}>
-                {(status?.progress || 0) >= 30 && <CheckCircle className="w-4 h-4 text-white" />}
-              </div>
-              <span className="font-bold text-lg uppercase">Configuring Parameters</span>
-            </div>
-
-            <div className={`flex items-center space-x-4 transition-all ${
-              (status?.progress || 0) >= 50 ? 'opacity-100' : 'opacity-40 grayscale'
-            }`}>
-              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
-                (status?.progress || 0) >= 50 ? 'bg-neo-black' : 'bg-white'
-              }`}>
-                {(status?.progress || 0) >= 50 && <CheckCircle className="w-4 h-4 text-white" />}
-              </div>
-              <span className="font-bold text-lg uppercase">Processing Image</span>
-            </div>
-
-            <div className={`flex items-center space-x-4 transition-all ${
-              (status?.progress || 0) >= 80 ? 'opacity-100' : 'opacity-40 grayscale'
-            }`}>
-              <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
-                (status?.progress || 0) >= 80 ? 'bg-neo-black' : 'bg-white'
-              }`}>
-                {(status?.progress || 0) >= 80 && <CheckCircle className="w-4 h-4 text-white" />}
-              </div>
-              <span className="font-bold text-lg uppercase">Optimizing Output</span>
-            </div>
-            
-            <div className={`flex items-center space-x-4 transition-all ${
-              (status?.progress || 0) >= 100 ? 'opacity-100' : 'opacity-40 grayscale'
-            }`}>
-               <div className={`w-6 h-6 border-2 border-neo-black flex items-center justify-center ${
-                (status?.progress || 0) >= 100 ? 'bg-neo-black' : 'bg-white'
-              }`}>
-                {(status?.progress || 0) >= 100 && <CheckCircle className="w-4 h-4 text-white" />}
-              </div>
-              <span className="font-bold text-lg uppercase">Done</span>
-            </div>
+            ))}
+            <div className="animate-pulse">_</div>
           </div>
-
-          {/* Action Buttons */}
-          {status?.status === 'completed' && (
-            <button
-              onClick={() => navigate(`/results/${jobId}`)}
-              className="bg-neo-red text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
-            >
-              View Results
-            </button>
-          )}
-
-          {status?.status === 'failed' && (
-            <button
-              onClick={() => navigate('/')}
-              className="bg-neo-black text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
-            >
-              Try Again
-            </button>
-          )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

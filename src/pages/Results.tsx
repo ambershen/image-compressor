@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, RotateCcw, Eye, EyeOff, Check } from 'lucide-react';
+import { ArrowLeft, Download, RotateCcw, Eye, EyeOff, FileDigit, Scaling } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface ProcessingStats {
@@ -24,7 +24,6 @@ export default function Results() {
   const [results, setResults] = useState<ResultsData | null>(null);
   const [showComparison, setShowComparison] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
     if (!jobId) {
@@ -35,20 +34,16 @@ export default function Results() {
     const fetchResults = async () => {
       try {
         const response = await fetch(`/api/status/${jobId}`);
-        if (!response.ok) {
-          throw new Error('Failed to get results');
-        }
-
+        if (!response.ok) throw new Error('Failed to get results');
         const data = await response.json();
         if (data.status !== 'completed') {
           navigate(`/processing/${jobId}`);
           return;
         }
-
         setResults(data);
       } catch (error) {
-        console.error('Error fetching results:', error);
-        toast.error('Failed to load results');
+        console.error(error);
+        toast.error('ERR: LOAD_FAILED');
         navigate('/');
       }
     };
@@ -58,14 +53,10 @@ export default function Results() {
 
   const handleDownload = async () => {
     if (!jobId) return;
-
     setIsDownloading(true);
     try {
       const response = await fetch(`/api/download/${jobId}`);
-      if (!response.ok) {
-        throw new Error('Download failed');
-      }
-
+      if (!response.ok) throw new Error('Download failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -76,198 +67,144 @@ export default function Results() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
-      toast.success('Image downloaded successfully!');
+      toast.success('DOWNLOAD_INITIATED');
     } catch (error) {
-      console.error('Download error:', error);
-      toast.error('Failed to download image');
+      console.error(error);
+      toast.error('ERR: DOWNLOAD_FAILED');
     } finally {
       setIsDownloading(false);
     }
   };
 
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+  const formatSize = (bytes: number) => {
+    if (bytes === 0) return '0 B';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const calculateSavings = () => {
-    if (!results?.stats) return 0;
-    return results.stats.originalSize - results.stats.processedSize;
-  };
-
-  if (!results) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-neo-black border-t-transparent mx-auto mb-4"></div>
-          <p className="font-bold uppercase">Loading results...</p>
-        </div>
-      </div>
-    );
-  }
+  if (!results) return null;
 
   return (
-    <div className="min-h-screen pb-20">
+    <div className="min-h-screen pb-20 font-mono">
       {/* Header */}
-      <header className="border-b-3 border-neo-black bg-neo-white sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-           <div className="flex items-center space-x-4">
-            <button
-              onClick={() => navigate('/')}
-              className="p-2 border-2 border-neo-black bg-white hover:shadow-neo transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-xl font-bold uppercase tracking-tight">Results</h1>
+      <header className="border-b-4 border-brut-black bg-brut-white sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto flex items-center justify-between p-4">
+          <button
+            onClick={() => navigate('/')}
+            className="border-2 border-brut-black bg-white px-4 py-2 font-bold uppercase hover:bg-brut-black hover:text-white transition-colors flex items-center space-x-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Return</span>
+          </button>
+          <div className="font-black text-xl uppercase tracking-tighter hidden md:block">
+            Output_Console
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setShowComparison(!showComparison)}
-              className="hidden sm:flex items-center space-x-2 px-4 py-2 bg-white border-2 border-neo-black hover:shadow-neo transition-all font-bold uppercase text-sm"
-            >
-              {showComparison ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              <span>{showComparison ? 'Hide' : 'Show'} Comparison</span>
-            </button>
-            <button
-              onClick={handleDownload}
-              disabled={isDownloading}
-              className="flex items-center space-x-2 bg-neo-red text-white border-2 border-neo-black px-4 py-2 font-bold uppercase hover:shadow-neo transition-all disabled:opacity-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-            >
-              <Download className="w-4 h-4" />
-              <span>{isDownloading ? '...' : 'Download'}</span>
-            </button>
-          </div>
+          <div className="w-24"></div> {/* Spacer */}
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-6 py-12">
-        {/* Success Message */}
-        <div className="bg-neo-purple text-white border-3 border-neo-black p-6 mb-12 shadow-neo flex items-start space-x-4">
-          <div className="bg-white text-neo-black p-2 border-2 border-neo-black">
-            <Check className="w-6 h-6" />
+      <main className="max-w-7xl mx-auto p-4 md:p-8">
+        
+        {/* Stats Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-4 border-brut-black bg-white mb-8">
+          <div className="p-6 border-b-4 md:border-b-0 md:border-r-4 border-brut-black text-center relative overflow-hidden group">
+            <div className="absolute top-0 left-0 bg-brut-black text-white text-xs px-2 py-1 font-bold">REDUCTION</div>
+            <div className="text-6xl font-black mt-4 group-hover:text-brut-red transition-colors">
+              {results.stats.compressionRatio.toFixed(0)}%
+            </div>
+            <div className="text-xs uppercase font-bold mt-2 opacity-50">
+              {formatSize(results.stats.originalSize - results.stats.processedSize)} Saved
+            </div>
           </div>
-          <div>
-            <h2 className="text-2xl font-bold uppercase leading-none mb-1">Success!</h2>
-            <p className="font-medium opacity-90">Your image has been crushed to perfection.</p>
+          
+          <div className="p-6 border-b-4 md:border-b-0 md:border-r-4 border-brut-black text-center">
+            <div className="flex flex-col items-center justify-center h-full space-y-2">
+              <div className="flex items-center space-x-2 text-gray-500 line-through text-sm">
+                <FileDigit className="w-4 h-4" />
+                <span>{formatSize(results.stats.originalSize)}</span>
+              </div>
+              <div className="text-4xl font-black">
+                {formatSize(results.stats.processedSize)}
+              </div>
+              <div className="bg-brut-black text-white text-xs px-2 py-1 font-bold uppercase">
+                Final Size
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6 text-center">
+             <div className="flex flex-col items-center justify-center h-full space-y-2">
+              {results.stats.newDimensions && (
+                <>
+                  <Scaling className="w-8 h-8 mb-2" />
+                  <div className="text-xl font-bold">
+                    {results.stats.newDimensions[0]} x {results.stats.newDimensions[1]}
+                  </div>
+                  <div className="text-xs uppercase font-bold opacity-50">
+                    Dimensions (PX)
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Statistics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          {/* Compression Ratio */}
-          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
-            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Reduction</h3>
-            <div className="text-5xl font-black text-neo-black leading-none mb-4">
-              {results.stats.compressionRatio.toFixed(1)}<span className="text-2xl">%</span>
-            </div>
-            <div className="inline-block bg-neo-black text-white px-3 py-1 font-bold text-sm uppercase">
-              Saved {formatFileSize(calculateSavings())}
-            </div>
-          </div>
-
-          {/* Original Stats */}
-          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
-            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Original</h3>
-            <div className="text-4xl font-bold text-neo-black mb-2">
-              {formatFileSize(results.stats.originalSize)}
-            </div>
-            {results.stats.originalDimensions && (
-              <div className="text-sm font-medium text-gray-600 border-t-2 border-gray-100 pt-2 mt-2">
-                {results.stats.originalDimensions[0]} × {results.stats.originalDimensions[1]} px
-              </div>
-            )}
-          </div>
-
-          {/* Processed Stats */}
-          <div className="bg-white border-3 border-neo-black p-6 shadow-neo hover:shadow-neo-lg hover:-translate-y-1 transition-all">
-            <h3 className="text-sm font-bold uppercase text-gray-500 mb-2">Processed</h3>
-            <div className="text-4xl font-bold text-neo-red mb-2">
-              {formatFileSize(results.stats.processedSize)}
-            </div>
-            {results.stats.newDimensions && (
-              <div className="text-sm font-medium text-gray-600 border-t-2 border-gray-100 pt-2 mt-2">
-                {results.stats.newDimensions[0]} × {results.stats.newDimensions[1]} px
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Image Comparison */}
-        {showComparison && (
-          <div className="mb-12">
-            <div className="flex items-center space-x-2 mb-6">
-              <div className="w-4 h-4 bg-neo-black"></div>
-              <h3 className="text-xl font-bold uppercase">Before & After</h3>
-            </div>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Original Image */}
-              <div className="space-y-4">
-                <div className="bg-white border-3 border-neo-black p-2 shadow-neo">
-                  <div className="bg-gray-100 overflow-hidden relative group">
-                    <img
-                      src={`/api/original/${jobId}`}
-                      alt="Original"
-                      className="w-full h-auto max-h-96 object-contain"
-                      onError={() => setImageError(true)}
-                    />
-                    <div className="absolute top-4 left-4 bg-neo-black text-white px-3 py-1 font-bold text-sm uppercase">
-                      Original
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Processed Image */}
-              <div className="space-y-4">
-                <div className="bg-white border-3 border-neo-black p-2 shadow-neo">
-                  <div className="bg-gray-100 overflow-hidden relative group">
-                    <img
-                      src={`/api/preview/${jobId}`}
-                      alt="Processed"
-                      className="w-full h-auto max-h-96 object-contain"
-                      onError={() => setImageError(true)}
-                    />
-                    <div className="absolute top-4 left-4 bg-neo-red text-white px-3 py-1 font-bold text-sm uppercase">
-                      Processed
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {imageError && (
-              <div className="text-center text-gray-500 mt-4 font-medium border-2 border-dashed border-gray-300 p-4">
-                Unable to load image preview. You can still download the processed image.
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Actions Footer */}
-        <div className="flex flex-col sm:flex-row gap-6 justify-center mt-16">
+        {/* Action Bar */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
           <button
             onClick={handleDownload}
             disabled={isDownloading}
-            className="flex items-center justify-center space-x-3 bg-neo-red text-white border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all disabled:opacity-50"
+            className="flex-1 bg-brut-red text-white border-4 border-brut-black p-4 text-xl font-black uppercase shadow-brut hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all flex items-center justify-center space-x-3"
           >
             <Download className="w-6 h-6" />
-            <span>{isDownloading ? 'Downloading...' : 'Download Image'}</span>
+            <span>Download_Asset</span>
           </button>
-
+          
           <button
-            onClick={() => navigate('/')}
-            className="flex items-center justify-center space-x-3 bg-white text-neo-black border-3 border-neo-black px-8 py-4 text-xl font-bold uppercase shadow-neo hover:shadow-neo-lg hover:-translate-y-1 active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+            onClick={() => setShowComparison(!showComparison)}
+            className="md:w-auto bg-white text-brut-black border-4 border-brut-black p-4 font-bold uppercase hover:bg-gray-100 transition-all flex items-center justify-center space-x-2"
           >
-            <RotateCcw className="w-6 h-6" />
-            <span>Process Another</span>
+            {showComparison ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            <span>{showComparison ? 'Hide_Diff' : 'Show_Diff'}</span>
+          </button>
+          
+           <button
+            onClick={() => navigate('/')}
+            className="md:w-auto bg-brut-black text-white border-4 border-brut-black p-4 font-bold uppercase hover:bg-gray-800 transition-all flex items-center justify-center"
+          >
+            <RotateCcw className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Comparison View */}
+        {showComparison && (
+          <div className="border-4 border-brut-black bg-white p-4 shadow-brut">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="bg-brut-black text-white px-2 py-1 text-xs font-bold uppercase inline-block">Input</div>
+                <div className="border-2 border-brut-black bg-gray-100 p-2 flex items-center justify-center h-[400px]">
+                  <img 
+                    src={`/api/original/${jobId}`} 
+                    className="max-w-full max-h-full object-contain" 
+                    alt="Original" 
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="bg-brut-red text-white px-2 py-1 text-xs font-bold uppercase inline-block">Output</div>
+                <div className="border-2 border-brut-black bg-gray-100 p-2 flex items-center justify-center h-[400px]">
+                   <img 
+                    src={`/api/preview/${jobId}`} 
+                    className="max-w-full max-h-full object-contain" 
+                    alt="Processed" 
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
