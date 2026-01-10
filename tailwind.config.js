@@ -6,29 +6,38 @@ export default {
   theme: {
     container: {
       center: true,
+      padding: "1rem", // Tighter padding for gallery feel
     },
     extend: {
       colors: {
-        brut: {
+        brand: {
           black: "#0A0A0C",
-          white: "#F2EDE7",
+          beige: "#F2EDE7",
+          purple: "#82667F",
+          blue: "#2C3E5C",
           red: "#D14A61",
-          gray: "#2A2A2C", // Added for utility
         },
       },
       fontFamily: {
-        mono: ['"Courier New"', 'Courier', 'monospace'],
-        sans: ['"Helvetica Neue"', 'Arial', 'sans-serif'],
+        // Whitney uses Neue Haas Grotesk / Helvetica. We use a strong grotesque stack.
+        sans: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+        mono: ['"JetBrains Mono"', '"Courier New"', 'Courier', 'monospace'],
       },
+      // Removed hard shadows for a flatter, Whitney-like look
       boxShadow: {
-        brut: "4px 4px 0px 0px #0A0A0C",
-        "brut-sm": "2px 2px 0px 0px #0A0A0C",
-        "brut-lg": "8px 8px 0px 0px #0A0A0C",
+        'none': 'none',
       },
       borderWidth: {
         1: '1px',
-        3: '3px',
-        4: '4px',
+        2: '2px', // Keep 2px for primary structural lines
+      },
+      letterSpacing: {
+        tighter: '-0.05em',
+        tight: '-0.025em',
+        normal: '0',
+        wide: '0.025em',
+        wider: '0.05em',
+        widest: '0.1em',
       }
     },
   },

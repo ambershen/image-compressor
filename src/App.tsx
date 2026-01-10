@@ -7,7 +7,7 @@ import './App.css';
 
 function App() {
   return (
-    <div className="min-h-screen selection:bg-brut-red selection:text-white">
+    <div className="min-h-screen selection:bg-brand-purple selection:text-brand-beige">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -21,13 +21,14 @@ function App() {
         toastOptions={{
           style: {
             background: '#F2EDE7',
-            border: '4px solid #0A0A0C',
+            border: '2px solid #0A0A0C',
             color: '#0A0A0C',
             borderRadius: '0px',
             boxShadow: '4px 4px 0px 0px #0A0A0C',
-            fontFamily: 'Courier New, monospace',
-            fontWeight: 700,
+            fontFamily: '"JetBrains Mono", monospace',
+            fontWeight: 500,
             textTransform: 'uppercase',
+            padding: '1rem',
           },
           className: 'brutalist-toast'
         }}

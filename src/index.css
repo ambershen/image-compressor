@@ -1,10 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'Courier New', Courier, monospace;
-  line-height: 1.5;
+  /* Default to Sans for the Whitney look */
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.2; /* Tighter line height for headlines */
   font-weight: 400;
 
   font-synthesis: none;
@@ -14,26 +17,29 @@
 }
 
 body {
-  @apply bg-brut-white text-brut-black;
-  background-image: linear-gradient(#0A0A0C06 1px, transparent 1px),
-    linear-gradient(90deg, #0A0A0C06 1px, transparent 1px);
-  background-size: 60px 60px;
-  background-position: -1px -1px;
+  @apply bg-brand-beige text-brand-black transition-colors duration-300;
+  /* Removed dot pattern for a cleaner, gallery wall look */
 }
 
-/* Brutalist Scrollbar */
+.dark body {
+  @apply bg-brand-black text-brand-beige;
+}
+
+/* Custom Scrollbar - Minimalist */
 ::-webkit-scrollbar {
-  width: 12px;
-  background: #F2EDE7;
-  border-left: 2px solid #0A0A0C;
+  width: 6px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
   background: #0A0A0C;
-  border: 2px solid #F2EDE7;
 }
 
-/* Custom Range Slider for Brutalism */
+.dark ::-webkit-scrollbar-thumb {
+  background: #F2EDE7;
+}
+
+/* Range Slider - Minimalist Line */
 input[type=range] {
   -webkit-appearance: none; 
   background: transparent; 
@@ -41,36 +47,82 @@ input[type=range] {
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
-  height: 20px;
-  width: 10px;
-  border-radius: 0px;
-  background: #D14A61;
-  border: 2px solid #0A0A0C;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%; /* Circle thumb */
+  background: #0A0A0C;
+  border: none;
   cursor: pointer;
-  margin-top: -8px; 
-  box-shadow: 2px 2px 0px 0px #0A0A0C;
+  margin-top: -7px; 
+  transition: transform 0.2s;
+}
+
+.dark input[type=range]::-webkit-slider-thumb {
+  background: #F2EDE7;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
 }
 
 input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
-  height: 4px;
+  height: 2px;
   cursor: pointer;
   background: #0A0A0C;
-  border-radius: 0px;
+}
+
+.dark input[type=range]::-webkit-slider-runnable-track {
+  background: #F2EDE7;
 }
 
 /* Utilities */
-.text-stroke {
-  -webkit-text-stroke: 1px #0A0A0C;
-  color: transparent;
+.gallery-border {
+  @apply border-b border-brand-black dark:border-brand-beige;
 }
 
-@keyframes marquee {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+.gallery-border-t {
+  @apply border-t border-brand-black dark:border-brand-beige;
 }
 
-.animate-marquee {
-  animation: marquee 20s linear infinite;
-  white-space: nowrap;
+.gallery-border-r {
+  @apply border-r border-brand-black dark:border-brand-beige;
+}
+
+.gallery-border-l {
+  @apply border-l border-brand-black dark:border-brand-beige;
+}
+
+/* Whitney-style Link Underline Animation */
+.hover-underline {
+  position: relative;
+  text-decoration: none;
+}
+
+.hover-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: currentColor;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+
+.hover-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+
+.brut-btn {
+  @apply px-6 py-3 font-bold uppercase tracking-tight border border-brand-black transition-all duration-200 hover:bg-brand-black hover:text-brand-beige;
+  @apply dark:border-brand-beige dark:text-brand-beige dark:hover:bg-brand-beige dark:hover:text-brand-black;
+}
+
+.brut-input {
+  @apply w-full bg-transparent border-b border-brand-black py-2 focus:outline-none transition-colors placeholder-brand-black/40 font-sans;
+  @apply dark:border-brand-beige dark:text-brand-beige dark:placeholder-brand-beige/40;
 }

@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, Settings, ArrowRight, CornerDownRight } from 'lucide-react';
+import { ArrowRight, Image as ImageIcon, Sparkles, Maximize2, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTheme } from '../hooks/useTheme';
 
 interface ProcessingOptions {
   type: 'quality' | 'pixel';
@@ -14,6 +15,7 @@ interface ProcessingOptions {
 
 export default function Home() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -46,17 +48,17 @@ export default function Home() {
 
   const handleFileSelect = (file: File) => {
     if (!file.type.match(/^image\/(jpeg|jpg)$/)) {
-      toast.error('ERR: INVALID_FILE_TYPE. REQUIRE: JPG/JPEG');
+      toast.error('INVALID FILE TYPE. ONLY JPG/JPEG ALLOWED.');
       return;
     }
 
     if (file.size > 50 * 1024 * 1024) {
-      toast.error('ERR: FILE_SIZE_LIMIT_EXCEEDED (50MB)');
+      toast.error('FILE TOO LARGE (MAX 50MB)');
       return;
     }
 
     setSelectedFile(file);
-    toast.success('FILE_BUFFERED_SUCCESSFULLY');
+    toast.success('FILE BUFFERED SUCCESSFULLY');
   };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -84,14 +86,13 @@ export default function Home() {
 
   const handleStartProcessing = async () => {
     if (!selectedFile) {
-      toast.error('ERR: NO_INPUT_SOURCE');
+      toast.error('NO INPUT SOURCE SELECTED');
       return;
     }
 
     setIsUploading(true);
 
     try {
-      // Upload file
       const formData = new FormData();
       formData.append('image', selectedFile);
 
@@ -107,7 +108,6 @@ export default function Home() {
       const uploadResult = await uploadResponse.json();
       const { jobId } = uploadResult;
 
-      // Start processing
       const processResponse = await fetch(`/api/process/${jobId}`, {
         method: 'POST',
         headers: {
@@ -129,158 +129,172 @@ export default function Home() {
         throw new Error('Processing failed to start');
       }
 
-      // Navigate to processing page
       navigate(`/processing/${jobId}`);
       
     } catch (error) {
       console.error('Error:', error);
-      toast.error('ERR: PROCESS_INIT_FAILED');
+      toast.error('PROCESS INITIALIZATION FAILED');
     } finally {
       setIsUploading(false);
     }
   };
 
   return (
-    <div className="min-h-screen pb-20 font-mono">
-      {/* Brutalist Header */}
-      <header className="border-b-4 border-brut-black bg-brut-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-stretch">
-          <div className="p-4 md:p-6 border-b-4 md:border-b-0 md:border-r-4 border-brut-black flex items-center bg-brut-black text-brut-white">
-             <div className="text-2xl font-black tracking-tighter uppercase">IMAGE PROCESSOR</div>
+    <div className="min-h-screen font-sans text-brand-black bg-brand-beige dark:text-brand-beige dark:bg-brand-black transition-colors duration-300">
+      {/* Header */}
+      <header className="fixed top-0 w-full z-50 border-b border-brand-black dark:border-brand-beige bg-brand-beige/95 dark:bg-brand-black/95 backdrop-blur-sm transition-colors duration-300">
+        <div className="max-w-[1400px] mx-auto flex justify-between items-center h-16 px-6 lg:px-12">
+          <div className="flex items-center space-x-2 group cursor-pointer" onClick={() => navigate('/')}>
+             <span className="text-xl font-bold tracking-tight uppercase hover-underline">Image Processor</span>
           </div>
-          <div className="flex-1 p-4 md:p-6 flex items-center justify-between bg-brut-white overflow-hidden">
-             <div className="font-bold uppercase w-full animate-marquee">
-               /// OPTIMIZE IMAGES /// REDUCE SIZE /// MAINTAIN QUALITY /// RAW POWER ///
-             </div>
+          <div className="flex items-center space-x-8 text-sm font-bold">
+             <button 
+               onClick={toggleTheme}
+               className="hover:text-brand-purple transition-colors"
+             >
+               {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 md:p-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <main className="pt-24 pb-20 max-w-[1400px] mx-auto px-6 lg:px-12">
+        {/* Hero / Intro */}
+        <div className="mb-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-end border-b border-brand-black dark:border-brand-beige pb-12">
+          <div>
+            <h1 className="text-6xl md:text-8xl font-bold leading-[0.9] tracking-tighter uppercase mb-6">
+              Optimize <br />
+              <span className="text-brand-black dark:text-brand-beige">Assets</span>
+            </h1>
+          </div>
+          <div className="lg:text-right pb-2">
+            <p className="text-lg md:text-xl font-medium max-w-md ml-auto leading-relaxed">
+              High-performance image compression and resizing.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 border-t border-l border-brand-black dark:border-brand-beige">
           
-          {/* Left Column: Controls */}
-          <div className="lg:col-span-7 space-y-8">
+          {/* Left Column: Configuration */}
+          <div className="lg:col-span-7 border-r border-b border-brand-black dark:border-brand-beige">
             
-            {/* Step 1: Strategy */}
-            <section className="bg-brut-white border-4 border-brut-black shadow-brut">
-              <div className="bg-brut-black text-brut-white p-3 border-b-4 border-brut-black flex justify-between items-center">
-                <h2 className="font-bold text-xl uppercase">01 // SELECT_STRATEGY</h2>
-                <CornerDownRight />
+            {/* Strategy Selection */}
+            <section className="p-8 md:p-12">
+              <div className="flex items-baseline justify-between mb-12">
+                <h2 className="text-2xl font-bold uppercase tracking-tight">01 Processing Strategy</h2>
+                <span className="text-xs font-mono opacity-50">SELECT MODE</span>
               </div>
-              <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <button
                   onClick={() => handleProcessingTypeChange('quality')}
-                  className={`p-4 border-4 transition-all text-left relative ${
+                  className={`group relative p-6 border text-left transition-all duration-300 h-full ${
                     processingType === 'quality'
-                      ? 'border-brut-black bg-brut-red text-white shadow-brut-sm'
-                      : 'border-brut-black bg-transparent hover:bg-brut-black hover:text-white'
+                      ? 'border-brand-black bg-brand-black text-brand-beige dark:bg-brand-beige dark:text-brand-black dark:border-brand-beige'
+                      : 'border-brand-black/20 hover:border-brand-black dark:border-brand-beige/20 dark:hover:border-brand-beige'
                   }`}
                 >
-                  <div className="font-bold text-lg mb-2">[A] QUALITY_COMP</div>
-                  <p className="text-xs leading-tight">MAINTAIN DIMENSIONS. REDUCE FILE SIZE. WEB OPTIMIZED.</p>
+                  <div className="flex justify-between items-start mb-12">
+                    <Sparkles className="w-6 h-6" />
+                    <div className={`w-3 h-3 rounded-full ${processingType === 'quality' ? 'bg-brand-red' : 'bg-transparent border border-current'}`}></div>
+                  </div>
+                  <div className="font-bold text-lg mb-2 uppercase">Optimizer</div>
+                  <p className="text-sm opacity-80 leading-relaxed font-mono">
+                    Smart compression logic. Best for web use.
+                  </p>
                 </button>
 
                 <button
                   onClick={() => handleProcessingTypeChange('pixel')}
-                  className={`p-4 border-4 transition-all text-left relative ${
+                  className={`group relative p-6 border text-left transition-all duration-300 h-full ${
                     processingType === 'pixel'
-                      ? 'border-brut-black bg-brut-red text-white shadow-brut-sm'
-                      : 'border-brut-black bg-transparent hover:bg-brut-black hover:text-white'
+                      ? 'border-brand-black bg-brand-black text-brand-beige dark:bg-brand-beige dark:text-brand-black dark:border-brand-beige'
+                      : 'border-brand-black/20 hover:border-brand-black dark:border-brand-beige/20 dark:hover:border-brand-beige'
                   }`}
                 >
-                  <div className="font-bold text-lg mb-2">[B] PIXEL_RED</div>
-                  <p className="text-xs leading-tight">REDUCE RESOLUTION. FORCE RESIZE. THUMBNAIL MODE.</p>
+                  <div className="flex justify-between items-start mb-12">
+                    <Maximize2 className="w-6 h-6" />
+                    <div className={`w-3 h-3 rounded-full ${processingType === 'pixel' ? 'bg-brand-blue' : 'bg-transparent border border-current'}`}></div>
+                  </div>
+                  <div className="font-bold text-lg mb-2 uppercase">Resizer</div>
+                  <p className="text-sm opacity-80 leading-relaxed font-mono">
+                    Physical dimension scaling. Force resize.
+                  </p>
                 </button>
               </div>
             </section>
 
-            {/* Step 2: Parameters */}
-            <section className="bg-brut-white border-4 border-brut-black shadow-brut">
-              <div className="bg-brut-black text-brut-white p-3 border-b-4 border-brut-black flex justify-between items-center">
-                <h2 className="font-bold text-xl uppercase">02 // CONFIG_PARAMS</h2>
-                <Settings className="w-5 h-5" />
+            {/* Parameters */}
+            <section className="p-8 md:p-12 border-t border-brand-black dark:border-brand-beige">
+              <div className="flex items-baseline justify-between mb-12">
+                <h2 className="text-2xl font-bold uppercase tracking-tight">02 Configuration</h2>
+                <span className="text-xs font-mono opacity-50">ADJUST PARAMETERS</span>
               </div>
-              <div className="p-6 space-y-6">
+
+              <div className="space-y-12">
                 {processingType === 'quality' && (
-                  <div className="space-y-4">
-                    <label className="block font-bold uppercase text-sm bg-brut-black text-white inline-block px-2">
-                      Compression Level
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="range"
-                        min="10"
-                        max="100"
-                        value={options.quality || 85}
-                        onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
-                        className="flex-1"
-                      />
-                      <div className="border-2 border-brut-black w-16 text-center font-bold text-xl bg-white">
-                        {options.quality}
-                      </div>
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-end">
+                      <label className="font-bold uppercase text-sm tracking-wide">Compression Level</label>
+                      <span className="text-4xl font-bold font-mono">{options.quality}%</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="10"
+                      max="100"
+                      value={options.quality || 85}
+                      onChange={(e) => setOptions({ ...options, quality: parseInt(e.target.value) })}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs font-mono uppercase tracking-wider opacity-60">
+                      <span>Max Compression</span>
+                      <span>Max Quality</span>
                     </div>
                   </div>
                 )}
 
                 {processingType === 'pixel' && (
-                  <div className="space-y-6">
-                    <div className="flex flex-col md:flex-row gap-4">
-                      <label className="flex items-center cursor-pointer border-2 border-brut-black p-2 hover:bg-gray-100 flex-1">
-                        <input
-                          type="radio"
-                          name="resizeMethod"
-                          checked={!!options.percentage}
-                          onChange={() => setOptions({ 
-                            ...options, 
-                            percentage: 50, 
-                            maxWidth: undefined, 
-                            maxHeight: undefined 
-                          })}
-                          className="mr-3 w-4 h-4 accent-brut-black"
-                        />
-                        <span className="font-bold uppercase">Percentage</span>
-                      </label>
-                      <label className="flex items-center cursor-pointer border-2 border-brut-black p-2 hover:bg-gray-100 flex-1">
-                        <input
-                          type="radio"
-                          name="resizeMethod"
-                          checked={!options.percentage}
-                          onChange={() => setOptions({ 
-                            ...options, 
-                            percentage: undefined, 
-                            maxWidth: 1920, 
-                            maxHeight: undefined 
-                          })}
-                          className="mr-3 w-4 h-4 accent-brut-black"
-                        />
-                        <span className="font-bold uppercase">Fixed Dims</span>
-                      </label>
+                  <div className="space-y-8">
+                    {/* Method Toggle */}
+                    <div className="flex border-b border-brand-black dark:border-brand-beige pb-4">
+                      <button
+                        onClick={() => setOptions({ ...options, percentage: 50, maxWidth: undefined, maxHeight: undefined })}
+                        className={`mr-8 text-sm font-bold uppercase tracking-wider hover-underline ${
+                          options.percentage ? 'opacity-100' : 'opacity-40'
+                        }`}
+                      >
+                        Percentage
+                      </button>
+                      <button
+                        onClick={() => setOptions({ ...options, percentage: undefined, maxWidth: 1920, maxHeight: undefined })}
+                        className={`text-sm font-bold uppercase tracking-wider hover-underline ${
+                          !options.percentage ? 'opacity-100' : 'opacity-40'
+                        }`}
+                      >
+                        Fixed Dimensions
+                      </button>
                     </div>
 
                     {options.percentage ? (
-                       <div className="space-y-4">
-                        <label className="block font-bold uppercase text-sm bg-brut-black text-white inline-block px-2">
-                          Reduction %
-                        </label>
-                        <div className="flex items-center space-x-4">
-                          <input
-                            type="range"
-                            min="10"
-                            max="90"
-                            value={options.percentage}
-                            onChange={(e) => setOptions({ ...options, percentage: parseInt(e.target.value) })}
-                            className="flex-1"
-                          />
-                          <div className="border-2 border-brut-black w-16 text-center font-bold text-xl bg-white">
-                            {options.percentage}
-                          </div>
+                       <div className="space-y-6">
+                        <div className="flex justify-between items-end">
+                          <label className="font-bold uppercase text-sm tracking-wide">Scale Percentage</label>
+                          <span className="text-4xl font-bold font-mono">{options.percentage}%</span>
                         </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="200"
+                          value={options.percentage}
+                          onChange={(e) => setOptions({ ...options, percentage: parseInt(e.target.value) })}
+                          className="w-full"
+                        />
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 gap-4">
-                         <div>
-                          <label className="block text-xs font-bold uppercase mb-1">Max Width (px)</label>
+                      <div className="grid grid-cols-2 gap-12">
+                         <div className="group">
+                          <label className="block text-xs font-bold uppercase mb-4 opacity-50 group-focus-within:opacity-100 transition-opacity">Max Width (px)</label>
                           <input
                             type="number"
                             value={options.maxWidth || ''}
@@ -288,12 +302,12 @@ export default function Home() {
                               ...options, 
                               maxWidth: e.target.value ? parseInt(e.target.value) : undefined 
                             })}
-                            className="w-full p-2 border-2 border-brut-black bg-white focus:outline-none focus:bg-brut-black focus:text-white"
+                            className="brut-input text-3xl font-bold"
                             placeholder="1920"
                           />
                         </div>
-                        <div>
-                          <label className="block text-xs font-bold uppercase mb-1">Max Height (px)</label>
+                        <div className="group">
+                          <label className="block text-xs font-bold uppercase mb-4 opacity-50 group-focus-within:opacity-100 transition-opacity">Max Height (px)</label>
                           <input
                             type="number"
                             value={options.maxHeight || ''}
@@ -301,17 +315,17 @@ export default function Home() {
                               ...options, 
                               maxHeight: e.target.value ? parseInt(e.target.value) : undefined 
                             })}
-                            className="w-full p-2 border-2 border-brut-black bg-white focus:outline-none focus:bg-brut-black focus:text-white"
+                            className="brut-input text-3xl font-bold"
                             placeholder="1080"
                           />
                         </div>
                       </div>
                     )}
                     
-                     <div className="pt-4 border-t-2 border-dashed border-brut-black">
-                      <label className="flex items-center space-x-3 cursor-pointer select-none">
-                        <div className={`w-6 h-6 border-2 border-brut-black flex items-center justify-center ${options.noAspect ? 'bg-brut-black' : 'bg-white'}`}>
-                          {options.noAspect && <div className="w-3 h-3 bg-white"></div>}
+                     <div className="pt-4">
+                      <label className="flex items-center space-x-3 cursor-pointer group select-none">
+                        <div className={`w-5 h-5 border border-brand-black dark:border-brand-beige flex items-center justify-center transition-colors ${options.noAspect ? 'bg-brand-black dark:bg-brand-beige' : 'bg-transparent'}`}>
+                          {options.noAspect && <div className="w-2 h-2 bg-brand-beige dark:bg-brand-black rounded-full"></div>}
                         </div>
                         <input
                           type="checkbox"
@@ -319,7 +333,7 @@ export default function Home() {
                           onChange={(e) => setOptions({ ...options, noAspect: e.target.checked })}
                           className="hidden"
                         />
-                        <span className="font-bold uppercase text-sm">Force Aspect Ratio Break</span>
+                        <span className="font-bold uppercase text-sm tracking-wide">Ignore Aspect Ratio</span>
                       </label>
                     </div>
                   </div>
@@ -329,89 +343,96 @@ export default function Home() {
           </div>
 
           {/* Right Column: Upload */}
-          <div className="lg:col-span-5">
-            <section className="bg-brut-white border-4 border-brut-black shadow-brut h-full flex flex-col">
-              <div className="bg-brut-black text-brut-white p-3 border-b-4 border-brut-black flex justify-between items-center">
-                <h2 className="font-bold text-xl uppercase">03 // INPUT_SOURCE</h2>
-                <Upload className="w-5 h-5" />
+          <div className="lg:col-span-5 border-r border-b border-brand-black dark:border-brand-beige">
+            <section className={`h-full flex flex-col transition-all duration-300 ${isDragging ? 'bg-brand-purple/10' : ''}`}>
+              <div className="p-8 md:p-12 border-b border-brand-black dark:border-brand-beige flex justify-between items-center">
+                 <div className="flex items-center space-x-3">
+                  <h2 className="text-2xl font-bold uppercase tracking-tight">03 Input Source</h2>
+                 </div>
+                 <div className="w-3 h-3 rounded-full bg-brand-black dark:bg-brand-beige animate-pulse"></div>
               </div>
               
-              <div className="p-6 flex-1 flex flex-col">
-                <div
-                  className={`flex-1 border-4 border-dashed min-h-[300px] flex flex-col items-center justify-center p-8 transition-all cursor-pointer relative overflow-hidden ${
-                    isDragging
-                      ? 'border-brut-black bg-brut-black text-white'
-                      : selectedFile
-                      ? 'border-brut-black bg-brut-white'
-                      : 'border-gray-400 hover:border-brut-black'
-                  }`}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={() => !selectedFile && fileInputRef.current?.click()}
-                >
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/jpeg,image/jpg"
-                    onChange={handleFileInputChange}
-                    className="hidden"
-                  />
+              <div 
+                className="flex-1 p-8 md:p-12 flex flex-col items-center justify-center cursor-pointer relative min-h-[400px]"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => !selectedFile && fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
 
-                  {selectedFile ? (
-                    <div className="text-center w-full z-10">
-                      <div className="border-4 border-brut-black bg-white w-24 h-24 mx-auto flex items-center justify-center mb-6 shadow-brut-sm">
-                         <span className="text-4xl font-black">JPG</span>
-                      </div>
-                      <div className="bg-brut-black text-white p-2 inline-block mb-2 font-bold uppercase break-all max-w-full">
-                        {selectedFile.name}
-                      </div>
-                      <div className="font-mono text-sm border-2 border-brut-black inline-block px-2 py-1 bg-white">
-                        {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                      </div>
-                      
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          fileInputRef.current?.click();
-                        }}
-                        className="block mt-8 mx-auto text-xs uppercase underline hover:bg-brut-black hover:text-white px-2 py-1"
-                      >
-                        [REPLACE_SOURCE]
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="text-center">
-                       <div className="text-6xl font-black opacity-20 mb-4">DRAG</div>
-                       <div className="text-xl font-bold uppercase mb-2">DROP ZONE</div>
-                       <div className="text-xs font-mono border-t border-b border-brut-black py-2 my-4">
-                         OR CLICK TO BROWSE
+                {selectedFile ? (
+                  <div className="w-full animate-in fade-in zoom-in duration-500">
+                    <div className="aspect-square bg-brand-black/5 dark:bg-brand-beige/5 mb-8 flex items-center justify-center relative overflow-hidden group border border-brand-black/10 dark:border-brand-beige/10">
+                       <ImageIcon className="w-32 h-32 text-brand-black/20 dark:text-brand-beige/20" />
+                       <div className="absolute inset-0 bg-brand-black/90 dark:bg-brand-beige/90 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                         <span className="text-brand-beige dark:text-brand-black px-4 py-2 font-bold text-sm uppercase tracking-widest border border-brand-beige dark:border-brand-black">Replace Image</span>
                        </div>
-                       <div className="text-xs opacity-50">LIMIT: 50MB</div>
                     </div>
-                  )}
-                </div>
+                    
+                    <div className="space-y-4 mb-12">
+                      <div className="flex items-center justify-between border-b border-brand-black/20 dark:border-brand-beige/20 pb-2">
+                         <span className="text-xs font-bold uppercase opacity-50 tracking-wider">Filename</span>
+                         <span className="font-mono text-sm truncate max-w-[200px]">{selectedFile.name}</span>
+                      </div>
+                      <div className="flex items-center justify-between border-b border-brand-black/20 dark:border-brand-beige/20 pb-2">
+                         <span className="text-xs font-bold uppercase opacity-50 tracking-wider">Size</span>
+                         <span className="font-mono text-sm">{(selectedFile.size / (1024 * 1024)).toFixed(2)} MB</span>
+                      </div>
+                    </div>
 
-                {selectedFile && (
-                  <button
-                    onClick={handleStartProcessing}
-                    disabled={isUploading}
-                    className="mt-6 w-full bg-brut-red text-white border-4 border-brut-black p-4 text-xl font-black uppercase shadow-brut hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-                  >
-                    <span>{isUploading ? 'EXECUTING...' : 'INITIATE_SEQUENCE'}</span>
-                    {!isUploading && <ArrowRight className="w-6 h-6" />}
-                  </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleStartProcessing();
+                      }}
+                      disabled={isUploading}
+                      className="w-full py-4 bg-brand-black text-brand-beige dark:bg-brand-beige dark:text-brand-black font-bold uppercase tracking-widest hover:bg-brand-purple hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
+                    >
+                      {isUploading ? (
+                        <>
+                          <div className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"></div>
+                          <span>Processing</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Initiate Process</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center space-y-8">
+                    <div className="w-48 h-48 mx-auto border border-dashed border-brand-black dark:border-brand-beige rounded-full flex items-center justify-center hover:scale-105 transition-transform duration-500">
+                      <span className="font-bold text-6xl opacity-20">+</span>
+                    </div>
+                    <div>
+                      <h3 className="text-2xl font-bold uppercase mb-2 tracking-tight">Drop Image Here</h3>
+                      <p className="text-sm font-mono opacity-60">or click to browse filesystem</p>
+                    </div>
+                  </div>
                 )}
               </div>
             </section>
           </div>
         </div>
 
-        {/* Footer */}
-        <footer className="mt-12 border-t-4 border-brut-black pt-8 pb-4 text-center">
-          <p className="font-mono text-xs uppercase opacity-50">
-            SYSTEM_STATUS: ONLINE // BRUTAL_MODE: ACTIVE // V1.0.0
-          </p>
+        <footer className="mt-24 border-t border-brand-black dark:border-brand-beige pt-8 flex flex-col md:flex-row justify-between items-center opacity-40 hover:opacity-100 transition-opacity">
+          <div className="text-xs font-bold uppercase tracking-widest">
+            © 2026 Image Processor // All Rights Reserved
+          </div>
+          <div className="flex space-x-4 mt-4 md:mt-0 font-mono text-xs">
+            <span>SYSTEM_NORMAL</span>
+            <span>///</span>
+            <span>V2.0.0</span>
+          </div>
         </footer>
       </main>
     </div>
