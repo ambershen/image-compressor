@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, RotateCcw, Eye, EyeOff, FileDigit, Scaling, Zap, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { ArrowLeft, Download, RotateCcw, Eye, EyeOff, Zap, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '../hooks/useTheme';
 
@@ -11,6 +11,7 @@ interface ProcessingStats {
   originalDimensions?: [number, number];
   newDimensions?: [number, number];
   pixelReduction?: number;
+  vectorPoints?: number;
 }
 
 interface ResultsData {
@@ -54,7 +55,7 @@ export default function Results() {
   }, [jobId, navigate]);
 
   const handleDownload = async () => {
-    if (!jobId) return;
+    if (!jobId || !results) return;
     setIsDownloading(true);
     try {
       const response = await fetch(`/api/download/${jobId}`);
@@ -64,7 +65,10 @@ export default function Results() {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = url;
-      a.download = `processed_${jobId}.jpg`;
+      
+      const extension = results.stats.vectorPoints !== undefined ? 'svg' : 'jpg';
+      a.download = `processed_${jobId}.${extension}`;
+      
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -149,6 +153,12 @@ export default function Results() {
                   <div className="flex justify-between items-center py-4 border-b border-brand-black/20 dark:border-brand-beige/20">
                      <span className="font-bold uppercase text-sm tracking-wider">Dimensions</span>
                      <span className="font-mono text-xl">{results.stats.newDimensions[0]} × {results.stats.newDimensions[1]}</span>
+                  </div>
+                )}
+                {results.stats.vectorPoints !== undefined && (
+                  <div className="flex justify-between items-center py-4 border-b border-brand-black/20 dark:border-brand-beige/20">
+                     <span className="font-bold uppercase text-sm tracking-wider">Vector Points</span>
+                     <span className="font-mono text-xl">{results.stats.vectorPoints}</span>
                   </div>
                 )}
              </div>

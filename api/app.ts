@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
 import sharp from 'sharp';
+import ImageTracer from 'imagetracerjs';
 
 const app = express();
 
@@ -28,7 +29,10 @@ interface ProcessingJob {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   originalBuffer: string; // Base64 encoded buffer
   originalName: string;
+  originalMimeType?: string; // Mime type of original file
   outputBuffer?: string; // Base64 encoded buffer
+  outputMimeType?: string; // Mime type of the output
+  type?: 'quality' | 'pixel' | 'svg';
   progress: number;
   error?: string;
   stats?: {
@@ -38,6 +42,7 @@ interface ProcessingJob {
     originalDimensions?: [number, number];
     newDimensions?: [number, number];
     pixelReduction?: number;
+    vectorPoints?: number;
   };
   createdAt: number;
 }
@@ -112,6 +117,7 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
       status: 'pending',
       originalBuffer: req.file.buffer.toString('base64'),
       originalName: req.file.originalname,
+      originalMimeType: req.file.mimetype,
       progress: 0,
       createdAt: Date.now(),
     };
@@ -177,6 +183,7 @@ app.post('/api/process/:jobId', async (req, res) => {
         processedBuffer = await sharpInstance
           .jpeg({ quality, progressive: true, mozjpeg: true })
           .toBuffer();
+        job.outputMimeType = 'image/jpeg';
       } else if (type === 'pixel') {
         // Pixel-based compression (resize)
         const percentage = options.percentage || 80;
@@ -210,6 +217,44 @@ app.post('/api/process/:jobId', async (req, res) => {
           .resize(resizeOptions)
           .jpeg({ quality: 85, progressive: true })
           .toBuffer();
+        job.outputMimeType = 'image/jpeg';
+      } else if (type === 'svg') {
+        // SVG Conversion
+        const colors = options.colors || 16;
+        const simplification = options.simplification || 1;
+        
+        console.log('Processing to SVG:', { colors, simplification });
+
+        // Resize first to avoid performance issues with large images
+        // Limit to 1000px max dimension for tracing
+        const maxDimension = 1000;
+        if (originalDimensions[0] > maxDimension || originalDimensions[1] > maxDimension) {
+           sharpInstance = sharpInstance.resize({
+             width: originalDimensions[0] > originalDimensions[1] ? maxDimension : undefined,
+             height: originalDimensions[1] > originalDimensions[0] ? maxDimension : undefined,
+             fit: 'inside'
+           });
+        }
+
+        const { data, info } = await sharpInstance
+          .ensureAlpha()
+          .raw()
+          .toBuffer({ resolveWithObject: true });
+        
+        // ImageTracer expects data to be Uint8ClampedArray-like
+        const svgString = ImageTracer.imagedataToSVG(
+          { width: info.width, height: info.height, data: new Uint8ClampedArray(data) },
+          { 
+            numberofcolors: colors, 
+            simplify: simplification,
+            ltres: 1,
+            qtres: 1,
+            strokewidth: 0
+          }
+        );
+        
+        processedBuffer = Buffer.from(svgString);
+        job.outputMimeType = 'image/svg+xml';
       } else {
         console.error('Invalid processing type:', type);
         return res.status(400).json({ error: 'Invalid processing type' });
@@ -219,10 +264,27 @@ app.post('/api/process/:jobId', async (req, res) => {
       await setJob(jobId, job);
 
       // Get processed image metadata
-      const processedMetadata = await sharp(processedBuffer).metadata();
+      let newDimensions: [number, number] = [0, 0];
+      if (type === 'svg') {
+        // For SVG, we can't easily get metadata with sharp without rendering
+        // But we know the dimensions from the input (or resized input)
+        // We can parse the SVG string or just assume it matches input logic
+        // For now, let's just use the dimensions we used for tracing
+        // We'll read the buffer again to be sure if needed, but sharp(svgBuffer) works
+        try {
+           const processedMetadata = await sharp(processedBuffer).metadata();
+           newDimensions = [processedMetadata.width || 0, processedMetadata.height || 0];
+        } catch (e) {
+           console.log('Could not get SVG metadata, using original/resized dimensions');
+           // Fallback if sharp fails on SVG
+           newDimensions = originalDimensions; 
+        }
+      } else {
+        const processedMetadata = await sharp(processedBuffer).metadata();
+        newDimensions = [processedMetadata.width || 0, processedMetadata.height || 0];
+      }
+      
       const processedSize = processedBuffer.length;
-      const newDimensions: [number, number] = [processedMetadata.width || 0, processedMetadata.height || 0];
-
       console.log('Processed dimensions:', newDimensions, 'Size:', processedSize);
 
       // Calculate statistics
@@ -238,9 +300,11 @@ app.post('/api/process/:jobId', async (req, res) => {
         originalDimensions,
         newDimensions,
         pixelReduction: type === 'pixel' ? pixelReduction : undefined,
+        vectorPoints: type === 'svg' ? processedBuffer.toString().split('path').length : undefined
       };
 
       job.status = 'completed';
+      job.type = type as any;
       job.progress = 100;
       job.outputBuffer = processedBuffer.toString('base64');
       job.stats = stats;
@@ -308,8 +372,11 @@ app.get('/api/download/:jobId', async (req, res) => {
     }
 
     const buffer = Buffer.from(job.outputBuffer, 'base64');
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Content-Disposition', `attachment; filename="processed_${jobId}.jpg"`);
+    const mimeType = job.outputMimeType || 'image/jpeg';
+    const extension = mimeType === 'image/svg+xml' ? 'svg' : 'jpg';
+    
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Disposition', `attachment; filename="processed_${jobId}.${extension}"`);
     res.send(buffer);
   } catch (error) {
     console.error('Download endpoint error:', error);
@@ -328,7 +395,7 @@ app.get('/api/original/:jobId', async (req, res) => {
     }
 
     const buffer = Buffer.from(job.originalBuffer, 'base64');
-    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Type', job.originalMimeType || 'image/jpeg');
     res.send(buffer);
   } catch (error) {
     console.error('Original endpoint error:', error);
@@ -347,7 +414,7 @@ app.get('/api/preview/:jobId', async (req, res) => {
     }
 
     const buffer = Buffer.from(job.outputBuffer, 'base64');
-    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Type', job.outputMimeType || 'image/jpeg');
     res.send(buffer);
   } catch (error) {
     console.error('Preview endpoint error:', error);

@@ -1,16 +1,18 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Image as ImageIcon, Sparkles, Maximize2, Sun, Moon } from 'lucide-react';
+import { ArrowRight, Image as ImageIcon, Sparkles, Maximize2, Sun, Moon, FileDigit } from 'lucide-react';
 import { toast } from 'sonner';
 import { useTheme } from '../hooks/useTheme';
 
 interface ProcessingOptions {
-  type: 'quality' | 'pixel';
+  type: 'quality' | 'pixel' | 'svg';
   quality?: number;
   percentage?: number;
   maxWidth?: number;
   maxHeight?: number;
   noAspect?: boolean;
+  colors?: number;
+  simplification?: number;
 }
 
 export default function Home() {
@@ -19,7 +21,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [processingType, setProcessingType] = useState<'quality' | 'pixel'>('quality');
+  const [processingType, setProcessingType] = useState<'quality' | 'pixel' | 'svg'>('quality');
   const [options, setOptions] = useState<ProcessingOptions>({
     type: 'quality',
     quality: 85,
@@ -47,8 +49,8 @@ export default function Home() {
   };
 
   const handleFileSelect = (file: File) => {
-    if (!file.type.match(/^image\/(jpeg|jpg)$/)) {
-      toast.error('INVALID FILE TYPE. ONLY JPG/JPEG ALLOWED.');
+    if (!file.type.match(/^image\/(jpeg|jpg|png)$/)) {
+      toast.error('INVALID FILE TYPE. ONLY JPG/JPEG/PNG ALLOWED.');
       return;
     }
 
@@ -68,18 +70,24 @@ export default function Home() {
     }
   };
 
-  const handleProcessingTypeChange = (type: 'quality' | 'pixel') => {
+  const handleProcessingTypeChange = (type: 'quality' | 'pixel' | 'svg') => {
     setProcessingType(type);
     if (type === 'quality') {
       setOptions({
         type: 'quality',
         quality: 85,
       });
-    } else {
+    } else if (type === 'pixel') {
       setOptions({
         type: 'pixel',
         percentage: 50,
         quality: 85,
+      });
+    } else {
+      setOptions({
+        type: 'svg',
+        colors: 16,
+        simplification: 1,
       });
     }
   };
@@ -121,6 +129,8 @@ export default function Home() {
             maxWidth: options.maxWidth,
             maxHeight: options.maxHeight,
             noAspect: options.noAspect,
+            colors: options.colors,
+            simplification: options.simplification,
           },
         }),
       });
@@ -186,7 +196,7 @@ export default function Home() {
                 <span className="text-xs font-mono opacity-50">SELECT MODE</span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <button
                   onClick={() => handleProcessingTypeChange('quality')}
                   className={`group relative p-6 border text-left transition-all duration-300 h-full ${
@@ -220,6 +230,24 @@ export default function Home() {
                   <div className="font-bold text-lg mb-2 uppercase">Resizer</div>
                   <p className="text-sm opacity-80 leading-relaxed font-mono">
                     Physical dimension scaling. Force resize.
+                  </p>
+                </button>
+
+                <button
+                  onClick={() => handleProcessingTypeChange('svg')}
+                  className={`group relative p-6 border text-left transition-all duration-300 h-full ${
+                    processingType === 'svg'
+                      ? 'border-brand-black bg-brand-black text-brand-beige dark:bg-brand-beige dark:text-brand-black dark:border-brand-beige'
+                      : 'border-brand-black/20 hover:border-brand-black dark:border-brand-beige/20 dark:hover:border-brand-beige'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-12">
+                    <FileDigit className="w-6 h-6" />
+                    <div className={`w-3 h-3 rounded-full ${processingType === 'svg' ? 'bg-brand-purple' : 'bg-transparent border border-current'}`}></div>
+                  </div>
+                  <div className="font-bold text-lg mb-2 uppercase">Vectorize</div>
+                  <p className="text-sm opacity-80 leading-relaxed font-mono">
+                    Convert to SVG vector. Infinite scaling.
                   </p>
                 </button>
               </div>
@@ -338,6 +366,49 @@ export default function Home() {
                     </div>
                   </div>
                 )}
+
+                {processingType === 'svg' && (
+                  <div className="space-y-6">
+                    <div className="space-y-6">
+                      <div className="flex justify-between items-end">
+                        <label className="font-bold uppercase text-sm tracking-wide">Colors</label>
+                        <span className="text-4xl font-bold font-mono">{options.colors}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="2"
+                        max="32"
+                        value={options.colors || 16}
+                        onChange={(e) => setOptions({ ...options, colors: parseInt(e.target.value) })}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs font-mono uppercase tracking-wider opacity-60">
+                        <span>Minimal</span>
+                        <span>Detailed</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-6 pt-6 border-t border-brand-black/10 dark:border-brand-beige/10">
+                      <div className="flex justify-between items-end">
+                        <label className="font-bold uppercase text-sm tracking-wide">Simplification</label>
+                        <span className="text-4xl font-bold font-mono">{options.simplification}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="10"
+                        step="0.1"
+                        value={options.simplification || 1}
+                        onChange={(e) => setOptions({ ...options, simplification: parseFloat(e.target.value) })}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs font-mono uppercase tracking-wider opacity-60">
+                        <span>Detailed</span>
+                        <span>Abstract</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </section>
           </div>
@@ -362,7 +433,7 @@ export default function Home() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/jpeg,image/jpg"
+                  accept="image/jpeg,image/jpg,image/png"
                   onChange={handleFileInputChange}
                   className="hidden"
                 />
